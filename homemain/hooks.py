@@ -242,3 +242,12 @@ app_license = "mit"
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+
+website_route_rules = [ {'from_route': '/frontend/<path:app_path>', 'to_route': 'frontend'}]
+
+whitelisted_methods = [
+    "frappe.realtime.get_user_info",
+    "frappe.utils.csrf_token.get_csrf_token",
+    "frappe.auth.login",
+    "frappe.auth.logout"
+]
