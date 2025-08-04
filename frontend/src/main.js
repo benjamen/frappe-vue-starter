@@ -1,38 +1,53 @@
 import { createApp } from "vue"
-
 import App from "./App.vue"
 import router from "./router"
 import { initSocket } from "./socket"
 
+// Only stable Frappe-UI imports
 import {
-	Alert,
-	Badge,
-	Button,
-	Dialog,
-	ErrorMessage,
-	FormControl,
-	Input,
-	TextInput,
-	frappeRequest,
-	pageMetaPlugin,
-	resourcesPlugin,
-	setConfig,
+  Button,
+  Card,
+  Dialog,
+  FormControl,
+  Switch,  // Add Switch component
+  TextInput,
+  frappeRequest,
+  pageMetaPlugin,
+  resourcesPlugin,
+  setConfig,
+  createDocumentResource,
+  createListResource,
+  LoadingText
 } from "frappe-ui"
+
+// Lucide icon
+import { X } from 'lucide-vue-next'
 
 import "./index.css"
 
-const globalComponents = {
-	Button,
-	TextInput,
-	Input,
-	FormControl,
-	ErrorMessage,
-	Dialog,
-	Alert,
-	Badge,
+const app = createApp(App)
+
+// Enhanced client implementation
+
+
+// Toast implementation
+const toast = (options) => {
+  console.log(`[Toast] ${options.title}: ${options.text || ''}`)
+  // Replace with actual UI toast if available
 }
 
-const app = createApp(App)
+// Provide to components
+app.provide('toast', toast)
+
+// Register components
+app.component('Button', Button)
+app.component('Card', Card)
+app.component('Dialog', Dialog)
+app.component('FormControl', FormControl)
+app.component('Switch', Switch)  // Register Switch component
+app.component('TextInput', TextInput)
+app.component('LucideX', X)
+app.component('LoadingText', LoadingText);
 
 setConfig("resourceFetcher", frappeRequest)
 
@@ -42,9 +57,5 @@ app.use(pageMetaPlugin)
 
 const socket = initSocket()
 app.config.globalProperties.$socket = socket
-
-for (const key in globalComponents) {
-	app.component(key, globalComponents[key])
-}
 
 app.mount("#app")

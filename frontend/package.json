@@ -11,8 +11,15 @@
     "copy-html-entry": "cp ../homemain/public/frontend/index.html ../homemain/www/frontend.html"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^7.0.0",
+    "@fortawesome/free-brands-svg-icons": "^7.0.0",
+    "@fortawesome/free-regular-svg-icons": "^7.0.0",
+    "@fortawesome/free-solid-svg-icons": "^7.0.0",
+    "@fortawesome/vue-fontawesome": "^3.1.1",
     "feather-icons": "^4.29.2",
-    "frappe-ui": "^0.1.149",
+    "frappe-ui": "0.1.182",
+    "interactjs": "1.10.11",
+    "lucide-vue-next": "0.208.0",
     "socket.io-client": "^4.7.2",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"

@@ -1,40 +1,47 @@
-import { userResource } from "@/data/user"
-import { createRouter, createWebHistory } from "vue-router"
-import { session } from "./data/session"
+// src/router.js
+import { createRouter, createWebHistory } from 'vue-router'
+import { session } from './data/session'
+
+// lazy‑load pages
+const Home = () => import('./pages/Home.vue')
+const Login = () => import('./pages/Login.vue')
+const Dashboard = () => import('./pages/Dashboard.vue')
+const Settings = () => import('./pages/Settings.vue')
+const AdminLayout = () => import('./layouts/AdminLayout.vue')
+const Tasks = () => import('./pages/Tasks.vue')
 
 const routes = [
-	{
-		path: "/",
-		name: "Home",
-		component: () => import("@/pages/Home.vue"),
-	},
-	{
-		name: "Login",
-		path: "/account/login",
-		component: () => import("@/pages/Login.vue"),
-	},
+  {
+    path: '/account/login',
+    name: 'Login',
+    component: Login,
+  },
+  {
+    path: '/',
+    component: AdminLayout,
+    children: [
+      { path: '', redirect: '/dashboard' },
+      { path: 'home', name: 'Home', component: Home },
+      { path: 'dashboard', name: 'Dashboard', component: Dashboard },
+      { path: 'settings', name: 'Settings', component: Settings },
+      { path: 'tasks', name: 'Tasks', component: Tasks },
+    ],
+  },
 ]
 
 const router = createRouter({
-	history: createWebHistory("/frontend"),
-	routes,
+  history: createWebHistory('/frontend'),
+  routes,
 })
 
-router.beforeEach(async (to, from, next) => {
-	let isLoggedIn = session.isLoggedIn
-	try {
-		await userResource.promise
-	} catch (error) {
-		isLoggedIn = false
-	}
-
-	if (to.name === "Login" && isLoggedIn) {
-		next({ name: "Home" })
-	} else if (to.name !== "Login" && !isLoggedIn) {
-		next({ name: "Login" })
-	} else {
-		next()
-	}
+router.beforeEach((to, from, next) => {
+  if (to.name !== 'Login' && !session.isLoggedIn) {
+    next({ name: 'Login' })
+  } else if (to.name === 'Login' && session.isLoggedIn) {
+    next({ name: 'Dashboard' })
+  } else {
+    next()
+  }
 })
 
 export default router
