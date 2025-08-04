@@ -1,5 +1,13 @@
-import { doctypeConfigs } from "@/data/doctypeConfigs";
-import { faHome, faChartPie, faTasks, faCogs } from "@fortawesome/free-solid-svg-icons";
+import { storeToRefs } from "pinia";
+import { usePageConfigStore } from "@/stores/pageConfig";
+import { computed } from "vue";
+import {
+  faTasks, faCogs, faChartPie, faHome
+} from "@fortawesome/free-solid-svg-icons";
+
+const iconMap = {
+  faTasks, faCogs, faChartPie, faHome
+};
 
 const baseNavItems = [
   { name: "Home", to: "/home", icon: faHome },
@@ -8,12 +16,20 @@ const baseNavItems = [
   { name: "Settings", to: "/settings", icon: faCogs },
 ];
 
-// Extract nav items from doctype configs
-const dynamicNavItems = Object.values(doctypeConfigs)
-  .filter(cfg => cfg.nav) // add a nav property in your doctypeConfigs if you want
-  .map(cfg => cfg.nav);
+export function useNavItems() {
+  const pageConfigStore = usePageConfigStore();
+  const { configs } = storeToRefs(pageConfigStore);
 
-export const navItems = [
-  ...baseNavItems,
-  ...dynamicNavItems,
-];
+  return computed(() => {
+    const customNav = (configs.value || [])
+      .filter(cfg => cfg.published_to_custom_ui) // or whatever flag you use
+      .map(cfg => ({
+        name: cfg.displayName || cfg.title || cfg.name,
+        to: `/form/${cfg.name}`,
+        icon: iconMap[cfg.custom_ui_icon] || faHome,
+      }));
+
+
+    return [...baseNavItems, ...customNav];
+  });
+}

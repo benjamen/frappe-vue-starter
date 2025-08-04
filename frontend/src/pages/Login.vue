@@ -16,22 +16,21 @@
           placeholder="••••••"
           label="Password"
         />
-        <Button :loading="session.login.loading" variant="solid"
-          >Login</Button
-        >
+        <Button :loading="session.login.loading" variant="solid">Login</Button>
       </form>
     </Card>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { session } from "../data/session"
+import { session } from "../data/session";
+import { Card, Input, Button } from "frappe-ui";
 
 function submit(e) {
-	const formData = new FormData(e.target)
-	session.login.submit({
-		email: formData.get("email"),
-		password: formData.get("password"),
-	})
+  const formData = new FormData(e.target);
+  session.login.submit({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
 }
 </script>

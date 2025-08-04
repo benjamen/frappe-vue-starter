@@ -24,11 +24,8 @@
               v-model="newDoc[field.name]"
               :label="field.label"
               :placeholder="field.placeholder || field.label || field.name"
-              :type="
-                field.type ||
-                (selectOptions[field.name]?.length ? 'select' : 'text')
-              "
-              :options="selectOptions[field.name]"
+              :type="field.type"
+              :options="field.options"
               :required="field.required"
               class="w-full"
             />
@@ -68,11 +65,8 @@
                 <FormControl
                   v-model="editingDoc.doc[field.name]"
                   :label="field.label"
-                  :type="
-                    field.type ||
-                    (selectOptions[field.name]?.length ? 'select' : 'text')
-                  "
-                  :options="selectOptions[field.name]"
+                  :type="field.type"
+                  :options="field.options"
                   class="w-full"
                 />
               </template>
@@ -81,15 +75,17 @@
                 variant="solid"
                 size="sm"
                 class="!bg-green-600 !text-white hover:!bg-green-700"
-                >💾 Save</Button
               >
+                💾 Save
+              </Button>
               <Button
                 type="button"
                 @click="cancelEdit"
                 variant="outline"
                 size="sm"
-                >❌ Cancel</Button
               >
+                ❌ Cancel
+              </Button>
             </form>
           </div>
 
@@ -113,15 +109,17 @@
                 variant="ghost"
                 size="sm"
                 class="opacity-0 group-hover:opacity-100 transition-all duration-200 hover:!bg-blue-50 !text-blue-600"
-                >Edit</Button
               >
+                Edit
+              </Button>
               <Button
                 @click="deleteDoc(doc)"
                 variant="ghost"
                 size="sm"
                 class="opacity-0 group-hover:opacity-100 transition-all duration-200 hover:!bg-red-50 !text-red-600"
-                >Delete</Button
               >
+                Delete
+              </Button>
             </div>
           </div>
         </div>
@@ -163,107 +161,143 @@ import { ref, computed, watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { createListResource, createDocumentResource, call } from "frappe-ui";
 import { Button, FormControl } from "frappe-ui";
-import { doctypeConfigs } from "../data/doctypeConfigs";
 
 const route = useRoute();
 const doctype = computed(() => route.params.doctype || "ToDo");
 
-// Config for common doctypes, using explicit type if needed
+// These will be dynamically built!
+const pageTitle = ref("");
+const pageSubtitle = ref("");
+const pageTitleSingular = ref("");
+const addFields = ref([]);
+const displayFields = ref([]);
 
-const config = computed(
-  () =>
-    doctypeConfigs[doctype.value] || {
-      title: doctype.value,
-      subtitle: `List of ${doctype.value}`,
-      singular: doctype.value,
-      addFields: [],
-      displayFields: [],
-    }
-);
-
-const pageTitle = computed(() => config.value.title);
-const pageSubtitle = computed(() => config.value.subtitle);
-const pageTitleSingular = computed(() => config.value.singular);
-const addFields = computed(() => config.value.addFields || []);
-const displayFields = computed(() => config.value.displayFields || []);
-
-const selectOptions = ref({});
-const selectOptionsReady = ref(false);
-
-// List resource
 const docs = createListResource({
   doctype: doctype.value,
-  fields: ["name", ...displayFields.value.map((f) => f.name)],
+  fields: ["name"],
   orderBy: "creation desc",
   start: 0,
   pageLength: 10,
 });
 
-// Watch for route/doctype changes and reload data + field meta
 watch(doctype, () => {
   docs.doctype = doctype.value;
-  docs.fetch();
   fetchFieldMeta();
-});
-watch(displayFields, () => {
-  docs.fields = ["name", ...displayFields.value.map((f) => f.name)];
   docs.fetch();
 });
 onMounted(() => {
-  docs.fetch();
   fetchFieldMeta();
+  docs.fetch();
 });
 
-// Fetch Frappe field meta to get select options for any doctype
 async function fetchFieldMeta() {
-  selectOptionsReady.value = false;
+  // Fetch from Frontend Page Config if you want custom title/subtitle (optional)
+  let customTitle = "";
+  let customSubtitle = "";
+  let customSingular = "";
   try {
-    const response = await call("frappe.desk.form.load.getdoctype", {
-      doctype: doctype.value,
+    const { message: cfg } = await call("frappe.client.get_list", {
+      doctype: "Frontend Page Config",
+      filters: { doctype: doctype.value },
+      fields: ["page_title", "page_subtitle", "page_singular"],
+      limit_page_length: 1,
     });
-    console.log("[DocType Meta Raw]", doctype.value, response);
-
-    // Try to get fields array in both common shapes
-    let fields = null;
-    if (
-      response &&
-      response.message &&
-      Array.isArray(response.message.fields)
-    ) {
-      fields = response.message.fields;
-    } else if (
-      response &&
-      response.docs &&
-      Array.isArray(response.docs) &&
-      response.docs[0] &&
-      Array.isArray(response.docs[0].fields)
-    ) {
-      fields = response.docs[0].fields;
+    if (Array.isArray(cfg) && cfg.length) {
+      customTitle = cfg[0].page_title;
+      customSubtitle = cfg[0].page_subtitle;
+      customSingular = cfg[0].page_singular;
     }
-
-    if (!fields) {
-      console.warn("[Meta Fetch] No fields found for", doctype.value, response);
-      selectOptions.value = {};
-      selectOptionsReady.value = true;
-      resetNewDoc();
-      return;
-    }
-
-    selectOptions.value = {};
-    for (const f of fields) {
-      if (f.fieldtype === "Select" && f.options) {
-        selectOptions.value[f.fieldname] = f.options
-          .split("\n")
-          .filter((o) => o && o !== "")
-          .map((opt) => ({ value: opt, label: opt }));
-      }
-    }
-    selectOptionsReady.value = true;
-    resetNewDoc();
   } catch (e) {
-    console.warn("Meta fetch failed for", doctype.value, e);
-    selectOptionsReady.value = true;
-    resetNewDoc();
+    // ignore if missing
+  }
+
+  const response = await call("frappe.desk.form.load.getdoctype", {
+    doctype: doctype.value,
+  });
+  let fields = response?.message?.fields || response?.docs?.[0]?.fields || [];
+  // Fallback to doctype name if no custom
+  pageTitle.value = customTitle || doctype.value;
+  pageSubtitle.value = customSubtitle || `List of ${doctype.value}`;
+  pageTitleSingular.value = customSingular || doctype.value;
+
+  // List fields: show those in_list_view, or bold (Frappe standard for "important")
+  displayFields.value = fields
+    .filter((f) => f.in_list_view || f.bold)
+    .map((f) => ({
+      name: f.fieldname,
+      label: f.label,
+      type: mapFrappeType(f.fieldtype),
+      options:
+        f.fieldtype === "Select" && f.options
+          ? f.options
+              .split("\n")
+              .filter(Boolean)
+              .map((opt) => ({ value: opt, label: opt }))
+          : undefined,
+    }));
+
+  // Add/edit fields: not hidden, not read_only, not Table/Button/HTML/Break/Image
+  addFields.value = fields
+    .filter(
+      (f) =>
+        !f.hidden &&
+        !f.read_only &&
+        ![
+          "Section Break",
+          "Column Break",
+          "Table",
+          "Button",
+          "HTML",
+          "Image",
+        ].includes(f.fieldtype)
+    )
+    .map((f) => ({
+      name: f.fieldname,
+      label: f.label,
+      required: !!f.reqd,
+      type: mapFrappeType(f.fieldtype),
+      options:
+        f.fieldtype === "Select" && f.options
+          ? f.options
+              .split("\n")
+              .filter(Boolean)
+              .map((opt) => ({ value: opt, label: opt }))
+          : undefined,
+      placeholder: f.label,
+    }));
+
+  // Dynamically update list fields on resource
+  docs.fields = ["name", ...displayFields.value.map((f) => f.name)];
+  resetNewDoc();
+}
+
+// Convert Frappe field types to form types
+function mapFrappeType(fieldtype) {
+  switch (fieldtype) {
+    case "Data":
+      return "text";
+    case "Text":
+    case "Small Text":
+    case "Long Text":
+    case "Code":
+      return "textarea";
+    case "Int":
+    case "Float":
+    case "Currency":
+    case "Percent":
+      return "number";
+    case "Date":
+      return "date";
+    case "Datetime":
+      return "datetime-local";
+    case "Time":
+      return "time";
+    case "Select":
+      return "select";
+    case "Check":
+      return "checkbox";
+    default:
+      return "text";
   }
 }
 
@@ -271,17 +305,10 @@ async function fetchFieldMeta() {
 const newDoc = ref({});
 function resetNewDoc() {
   newDoc.value = Object.fromEntries(
-    addFields.value.map((f) => {
-      // Default to first select value if available
-      if (selectOptions.value[f.name]?.length) {
-        return [f.name, selectOptions.value[f.name][0].value];
-      }
-      return [f.name, ""];
-    })
+    addFields.value.map((f) => [f.name, f.options?.[0]?.value ?? ""])
   );
 }
 watch(addFields, resetNewDoc, { immediate: true });
-watch(selectOptions, resetNewDoc);
 
 async function addDoc() {
   for (const field of addFields.value) {
@@ -306,7 +333,6 @@ function startEdit(doc) {
     name: doc.name,
   });
 }
-
 async function saveEdit() {
   if (!editingDoc.value || !editingDoc.value.doc) return;
   try {
@@ -318,16 +344,16 @@ async function saveEdit() {
     alert("Failed to save: " + err.message);
   }
 }
-
 function cancelEdit() {
   editingId.value = null;
   editingDoc.value = null;
 }
-
 async function deleteDoc(doc) {
   if (
     !confirm(
-      `Delete ${config.value.singular} "${doc[displayFields.value[0]?.name]}"?`
+      `Delete ${pageTitleSingular.value} "${
+        doc[displayFields.value[0]?.name]
+      }"?`
     )
   )
     return;

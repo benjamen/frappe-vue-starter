@@ -81,23 +81,13 @@
   </div>
 </template>
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { session } from "../data/session";
-import { doctypeConfigs } from "../data/doctypeConfigs";
-
-import {
-  faHome,
-  faChartPie,
-  faCogs,
-  faSun,
-  faMoon,
-  faTasks,
-} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { navItems } from "@/navItems";
-
-const faIcon = FontAwesomeIcon;
+import { usePageConfigStore } from "@/stores/pageConfig";
+import { useNavItems } from "@/navItems";
+const navItems = useNavItems(); // already a computed ref!
 
 const collapsed = ref(false);
 const dark = ref(document.documentElement.classList.contains("dark"));
@@ -107,6 +97,12 @@ const router = useRouter();
 const isActive = (path) => route.path === path;
 const isLoggedIn = computed(() => session.isLoggedIn);
 
+// FETCH page configs on mount if not already loaded
+const pageConfigStore = usePageConfigStore();
+onMounted(() => {
+  pageConfigStore.fetchConfigs();
+});
+
 function toggleDarkMode() {
   dark.value = !dark.value;
   if (dark.value) {
@@ -114,8 +110,6 @@ function toggleDarkMode() {
   } else {
     document.documentElement.classList.remove("dark");
   }
-
-  // Dispatch event to sync with Settings page
   window.dispatchEvent(
     new CustomEvent("darkModeChanged", {
       detail: { enabled: dark.value },

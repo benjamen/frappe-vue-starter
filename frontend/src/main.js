@@ -1,15 +1,21 @@
-import { createApp } from "vue"
-import App from "./App.vue"
-import router from "./router"
-import { initSocket } from "./socket"
+import { createApp } from "vue";
+import App from "./App.vue";
+import router from "./router";
+import { initSocket } from "./socket";
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { usePageConfigStore } from "@/stores/pageConfig";
+import { createPinia } from "pinia";
+const pinia = createPinia();
 
-// Only stable Frappe-UI imports
+
+
+// Frappe UI imports
 import {
   Button,
   Card,
   Dialog,
   FormControl,
-  Switch,  // Add Switch component
+  Switch,
   TextInput,
   frappeRequest,
   pageMetaPlugin,
@@ -18,44 +24,55 @@ import {
   createDocumentResource,
   createListResource,
   LoadingText
-} from "frappe-ui"
+} from "frappe-ui";
 
 // Lucide icon
-import { X } from 'lucide-vue-next'
+import { X } from 'lucide-vue-next';
 
-import "./index.css"
+import "./index.css";
 
-const app = createApp(App)
+// --- 1. CREATE APP, PINIA, REGISTER ---
+const app = createApp(App);
 
-// Enhanced client implementation
+app.use(pinia);
+
+// Fetch and wait for configs before mounting
+const pageConfig = usePageConfigStore();
+await pageConfig.fetchConfigs();  // <- IMPORTANT: Await before app.mount
 
 
-// Toast implementation
+// Provide toast
 const toast = (options) => {
-  console.log(`[Toast] ${options.title}: ${options.text || ''}`)
-  // Replace with actual UI toast if available
-}
+  console.log(`[Toast] ${options.title}: ${options.text || ''}`);
+};
+app.provide('toast', toast);
 
-// Provide to components
-app.provide('toast', toast)
-
-// Register components
-app.component('Button', Button)
-app.component('Card', Card)
-app.component('Dialog', Dialog)
-app.component('FormControl', FormControl)
-app.component('Switch', Switch)  // Register Switch component
-app.component('TextInput', TextInput)
-app.component('LucideX', X)
+// Register components globally
+app.component('Button', Button);
+app.component('Card', Card);
+app.component('Dialog', Dialog);
+app.component('FormControl', FormControl);
+app.component('Switch', Switch);
+app.component('TextInput', TextInput);
+app.component('LucideX', X);
 app.component('LoadingText', LoadingText);
 
-setConfig("resourceFetcher", frappeRequest)
+app.component('fa-icon', FontAwesomeIcon);
 
-app.use(router)
-app.use(resourcesPlugin)
-app.use(pageMetaPlugin)
+setConfig("resourceFetcher", frappeRequest);
 
-const socket = initSocket()
-app.config.globalProperties.$socket = socket
+app.use(router);
+app.use(resourcesPlugin);
+app.use(pageMetaPlugin);
 
-app.mount("#app")
+// --- 2. INIT SOCKET ---
+const socket = initSocket();
+app.config.globalProperties.$socket = socket;
+
+
+
+// --- 4. NOW MOUNT ---
+app.mount("#app");
+
+
+

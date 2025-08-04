@@ -10,6 +10,7 @@ const Settings = () => import('./pages/Settings.vue')
 const AdminLayout = () => import('./layouts/AdminLayout.vue')
 const Tasks = () => import('./pages/Tasks.vue')
 const Generic = () => import('./pages/GenericDocList.vue')
+const WebForm = () => import('./pages/WebFormPage.vue')
 
 
 const routes = [
@@ -27,6 +28,7 @@ const routes = [
       { path: 'dashboard', name: 'Dashboard', component: Dashboard },
       { path: 'settings', name: 'Settings', component: Settings },
       { path: 'tasks', name: 'Tasks', component: Tasks },
+      { path: 'form/:name', name: 'WebFormPage', component: WebForm, props: true },
       { path: 'list/:doctype', name: 'GenericList', component: Generic, props: true },
     ],
   },
