@@ -169,7 +169,11 @@
       <!-- Change Password Dialog -->
       <Dialog
         v-model="showChangePassword"
-        :options="{ title: 'Change Password', size: 'sm' }"
+        :options="{
+          title: 'Change Password',
+          description: 'Update your account password',
+          size: 'sm',
+        }"
       >
         <template #body>
           <div class="space-y-4">
@@ -215,20 +219,19 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onActivated } from "vue";
 import { session } from "@/data/session";
 import { createDocumentResource } from "frappe-ui";
 import {
   Button,
-  Dialog,
   Card,
   FormControl,
   LoadingText,
   ErrorMessage,
   Alert,
   FeatherIcon,
+  Dialog,
 } from "frappe-ui";
-// ChangePasswordForm component will be defined inline
 
 // State
 const showChangePassword = ref(false);
@@ -238,13 +241,16 @@ const loading = ref(true);
 const error = ref(null);
 const userDoc = ref(null);
 
-// Local preferences storage - sync with system dark mode
+// Track when we've completed initial load
+const initialLoadCompleted = ref(false);
+
+// Local preferences
 const localPreferences = ref({
   enable_notifications: false,
   dark_mode: document.documentElement.classList.contains("dark"),
 });
 
-// Password form state
+// Password form
 const passwordForm = ref({
   currentPassword: "",
   newPassword: "",
@@ -253,59 +259,34 @@ const passwordForm = ref({
   errors: {},
 });
 
-// Document resource for User
+// Initialize user resource
 const userResource = createDocumentResource({
   doctype: "User",
   name: session.user,
-  auto: false,
-  onSuccess(data) {
-    userDoc.value = { ...data };
-    loading.value = false;
-  },
-  onError(err) {
-    error.value = "Failed to load settings. Please try again.";
-    loading.value = false;
-    console.error("Error loading user data:", err);
-  },
+  auto: false, // We'll control loading manually
 });
 
-// Load preferences
-function loadPreferences() {
-  localPreferences.value.dark_mode = window.matchMedia(
-    "(prefers-color-scheme: dark)"
-  ).matches;
-  localPreferences.value.enable_notifications = false;
-}
-
-// Computed properties
+// Computed
 const hasChanges = computed(() => dirty.value);
 
-// Initialize
+// Load data function (fixed for navigation/keep-alive)
 async function loadData() {
+  loading.value = true;
+  error.value = null;
   try {
-    loading.value = true;
-    error.value = null;
-    userDoc.value = null;
-
-    await userResource.reload();
-    loadPreferences();
-    applyDarkMode(localPreferences.value.dark_mode);
+    const data = await userResource.reload(); // or .fetch() if needed
+    userDoc.value = data;
+    loading.value = false;
+    initialLoadCompleted.value = true;
   } catch (err) {
     error.value = "Failed to load settings. Please try again.";
-    console.error("Error loading settings:", err);
+    loading.value = false;
   }
 }
 
-// Dark mode handling - integrate with existing system
+// Dark mode
 function applyDarkMode(enabled) {
   document.documentElement.classList.toggle("dark", enabled);
-
-  // Trigger a custom event to notify other components
-  window.dispatchEvent(
-    new CustomEvent("darkModeChanged", {
-      detail: { enabled },
-    })
-  );
 }
 
 function handleDarkModeChange() {
@@ -317,6 +298,7 @@ function markDirty() {
   dirty.value = true;
 }
 
+// Save
 async function saveAll() {
   if (!userDoc.value) return;
 
@@ -326,24 +308,22 @@ async function saveAll() {
       full_name: userDoc.value.full_name,
       email: userDoc.value.email,
     });
-
     dirty.value = false;
-    console.log("Settings saved successfully");
   } catch (err) {
-    console.error("Error saving settings:", err);
     error.value = "Failed to save changes. Please try again.";
   } finally {
     saving.value = false;
   }
 }
 
-// Reload function for error state
+// Reload
 function reload() {
   error.value = null;
+  loading.value = true;
   loadData();
 }
 
-// Password change functionality
+// Password change
 function validatePasswordForm() {
   passwordForm.value.errors = {};
 
@@ -374,8 +354,7 @@ async function changePassword() {
 
   passwordForm.value.loading = true;
   try {
-    // In a real app, this would call an API endpoint
-    // For demo purposes, we'll just simulate success
+    // In a real app, call your API here
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Reset form
@@ -386,11 +365,8 @@ async function changePassword() {
       loading: false,
       errors: {},
     };
-
     showChangePassword.value = false;
-    console.log("Password changed successfully");
   } catch (err) {
-    console.error("Error changing password:", err);
     passwordForm.value.errors.general =
       "Failed to change password. Please try again.";
   } finally {
@@ -398,20 +374,16 @@ async function changePassword() {
   }
 }
 
-// Initial load
+// Lifecycle hooks
 onMounted(() => {
+  // Load data on initial mount
   loadData();
-
-  // Listen for dark mode changes from other components
-  window.addEventListener("darkModeChanged", handleExternalDarkModeChange);
 });
 
-onUnmounted(() => {
-  window.removeEventListener("darkModeChanged", handleExternalDarkModeChange);
+onActivated(() => {
+  // Refresh data when navigating back to this page
+  if (initialLoadCompleted.value) {
+    loadData();
+  }
 });
-
-// Handle dark mode changes from external sources (like AdminLayout)
-function handleExternalDarkModeChange(event) {
-  localPreferences.value.dark_mode = event.detail.enabled;
-}
 </script>

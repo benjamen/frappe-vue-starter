@@ -84,6 +84,8 @@
 import { ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { session } from "../data/session";
+import { doctypeConfigs } from "../data/doctypeConfigs";
+
 import {
   faHome,
   faChartPie,
@@ -93,14 +95,9 @@ import {
   faTasks,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { navItems } from "@/navItems";
 
 const faIcon = FontAwesomeIcon;
-const navItems = [
-  { name: "Home", to: "/home", icon: faHome },
-  { name: "Dashboard", to: "/dashboard", icon: faChartPie },
-  { name: "Tasks", to: "/tasks", icon: faTasks },
-  { name: "Settings", to: "/settings", icon: faCogs },
-];
 
 const collapsed = ref(false);
 const dark = ref(document.documentElement.classList.contains("dark"));

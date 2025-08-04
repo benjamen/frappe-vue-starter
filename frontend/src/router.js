@@ -9,6 +9,8 @@ const Dashboard = () => import('./pages/Dashboard.vue')
 const Settings = () => import('./pages/Settings.vue')
 const AdminLayout = () => import('./layouts/AdminLayout.vue')
 const Tasks = () => import('./pages/Tasks.vue')
+const Generic = () => import('./pages/GenericDocList.vue')
+
 
 const routes = [
   {
@@ -25,6 +27,7 @@ const routes = [
       { path: 'dashboard', name: 'Dashboard', component: Dashboard },
       { path: 'settings', name: 'Settings', component: Settings },
       { path: 'tasks', name: 'Tasks', component: Tasks },
+      { path: 'list/:doctype', name: 'GenericList', component: Generic, props: true },
     ],
   },
 ]
