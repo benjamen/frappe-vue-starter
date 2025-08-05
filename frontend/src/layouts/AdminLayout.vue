@@ -1,4 +1,3 @@
-<!-- src/layouts/AdminLayout.vue -->
 <template>
   <div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Sidebar -->
@@ -48,29 +47,72 @@
     <div class="flex flex-col flex-1">
       <!-- Top bar -->
       <header
-        class="h-16 flex items-center justify-end px-6 border-b dark:border-gray-700 bg-white dark:bg-gray-800"
+        class="h-16 flex items-center justify-end px-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
       >
-        <Button
-          @click="toggleDarkMode"
-          variant="light"
-          :icon-left="dark ? 'moon' : 'sun'"
-        />
-        <Button
-          v-if="!isLoggedIn"
-          to="/account/login"
-          variant="light"
-          icon-left="log-in"
-          class="ml-4"
-          >Login</Button
-        >
-        <Button
-          v-else
-          @click="logout"
-          variant="light"
-          icon-left="log-out"
-          class="ml-4"
-          >Logout</Button
-        >
+        <div class="flex items-center gap-2">
+          <!-- Settings Dropdown -->
+          <div class="relative" v-if="isLoggedIn">
+            <button
+              @click="showSettingsMenu = !showSettingsMenu"
+              class="flex items-center gap-2 px-3 py-2 text-gray-800 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+            >
+              <span class="text-sm">⚙️</span>
+              <span class="text-xs">{{ showSettingsMenu ? "▲" : "▼" }}</span>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div
+              v-if="showSettingsMenu"
+              @click="showSettingsMenu = false"
+              class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 py-1"
+            >
+              <a
+                :href="profileUrl"
+                @click="handleProfileClick"
+                class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <span class="text-sm" v-if="!profileLoading">👤</span>
+                <span class="text-sm animate-spin" v-else>⏳</span>
+                <span>{{
+                  profileLoading ? "Loading..." : "Edit Profile"
+                }}</span>
+              </a>
+              <router-link
+                to="/settings"
+                class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <span class="text-sm">⚙️</span>
+                Settings
+              </router-link>
+              <hr class="my-1 border-gray-200 dark:border-gray-700" />
+              <button
+                @click="logout"
+                class="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+              >
+                <span class="text-sm">🚪</span>
+                Logout
+              </button>
+            </div>
+          </div>
+
+          <!-- Dark Mode Toggle -->
+          <button
+            @click="toggleDarkMode"
+            class="p-2 text-gray-800 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+            :title="dark ? 'Switch to light mode' : 'Switch to dark mode'"
+          >
+            <span class="text-lg">{{ dark ? "🌙" : "☀️" }}</span>
+          </button>
+
+          <!-- Login Button (when not logged in) -->
+          <button
+            v-if="!isLoggedIn"
+            @click="router.push('/account/login')"
+            class="ml-2 px-3 py-2 text-gray-800 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+          >
+            <span class="text-sm">🔑</span> Login
+          </button>
+        </div>
       </header>
 
       <!-- Main content -->
@@ -78,8 +120,16 @@
         <router-view />
       </main>
     </div>
+
+    <!-- Click outside to close settings menu -->
+    <div
+      v-if="showSettingsMenu"
+      @click="showSettingsMenu = false"
+      class="fixed inset-0 z-40"
+    ></div>
   </div>
 </template>
+
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -87,15 +137,33 @@ import { session } from "../data/session";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { usePageConfigStore } from "@/stores/pageConfig";
 import { useNavItems } from "@/navItems";
+
 const navItems = useNavItems(); // already a computed ref!
 
 const collapsed = ref(false);
 const dark = ref(document.documentElement.classList.contains("dark"));
+const showSettingsMenu = ref(false);
 const route = useRoute();
 const router = useRouter();
 
+const profileLoading = ref(false);
+
 const isActive = (path) => route.path === path;
 const isLoggedIn = computed(() => session.isLoggedIn);
+
+// Profile URL with current user
+const profileUrl = computed(() => {
+  const currentUser =
+    session.user?.name || session.user?.username || "Administrator";
+  return `http://localhost:8080/frontend/form/edit-profile?doc=${currentUser}`;
+});
+
+// Handle profile click with loading state
+const handleProfileClick = (event) => {
+  profileLoading.value = true;
+  showSettingsMenu.value = false;
+  // Loading state will be reset when page navigates away
+};
 
 // FETCH page configs on mount if not already loaded
 const pageConfigStore = usePageConfigStore();
@@ -118,6 +186,7 @@ function toggleDarkMode() {
 }
 
 async function logout() {
+  showSettingsMenu.value = false;
   await session.logout.submit();
 }
 </script>

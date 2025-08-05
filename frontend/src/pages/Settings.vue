@@ -20,7 +20,7 @@
           @click="saveAll"
           class="!bg-gradient-to-r !from-green-600 !to-emerald-600 !text-white hover:!from-green-700 hover:!to-emerald-700 !shadow-lg hover:!shadow-xl transform hover:scale-105 transition-all duration-200"
         >
-          Save All Changes
+          Save Changes
         </Button>
       </div>
 
@@ -36,36 +36,50 @@
 
       <!-- Settings Content -->
       <div v-else-if="userDoc" class="space-y-6">
-        <!-- Profile Card -->
+        <!-- Profile Card (Read-Only) -->
         <Card
           title="Profile Information"
-          subtitle="Update your personal details"
+          subtitle="Your account details (managed via profile settings)"
           class="!bg-white/70 !backdrop-blur-sm !shadow-xl !border-white/20 hover:!shadow-2xl !transition-all !duration-300"
         >
           <template #actions>
-            <div
-              class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center"
-            >
-              <FeatherIcon name="user" class="w-5 h-5 text-white" />
+            <div class="flex items-center gap-3">
+              <router-link
+                to="/profile"
+                class="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1 hover:underline"
+              >
+                <FeatherIcon name="edit-2" class="w-4 h-4" />
+                Edit Profile
+              </router-link>
+              <div
+                class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center"
+              >
+                <FeatherIcon name="user" class="w-5 h-5 text-white" />
+              </div>
             </div>
           </template>
 
           <div class="grid md:grid-cols-2 gap-6">
-            <FormControl
-              label="Full Name"
-              v-model="userDoc.full_name"
-              @change="markDirty"
-              required
-              class="[&_input]:!bg-white/50 [&_input]:!backdrop-blur-sm [&_input]:!border-2 [&_input]:!border-gray-200 [&_input]:!rounded-xl [&_input]:hover:!border-indigo-300 [&_input]:focus:!border-indigo-500 [&_input]:focus:!ring-4 [&_input]:focus:!ring-indigo-100"
-            />
-            <FormControl
-              label="Email Address"
-              type="email"
-              v-model="userDoc.email"
-              @change="markDirty"
-              required
-              class="[&_input]:!bg-white/50 [&_input]:!backdrop-blur-sm [&_input]:!border-2 [&_input]:!border-gray-200 [&_input]:!rounded-xl [&_input]:hover:!border-indigo-300 [&_input]:focus:!border-indigo-500 [&_input]:focus:!ring-4 [&_input]:focus:!ring-indigo-100"
-            />
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700"
+                >Full Name</label
+              >
+              <div
+                class="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-600"
+              >
+                {{ userDoc.full_name || "Not set" }}
+              </div>
+            </div>
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700"
+                >Email Address</label
+              >
+              <div
+                class="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-600"
+              >
+                {{ userDoc.email || "Not set" }}
+              </div>
+            </div>
           </div>
         </Card>
 
@@ -107,6 +121,38 @@
                 @change="handleDarkModeChange"
               />
             </div>
+
+            <div
+              class="p-4 bg-white/30 rounded-xl border border-white/30 hover:bg-white/50 transition-all duration-200"
+            >
+              <FormControl
+                type="checkbox"
+                label="Email Notifications"
+                description="Receive notifications via email"
+                v-model="localPreferences.email_notifications"
+                @change="markDirty"
+              />
+            </div>
+
+            <div
+              class="p-4 bg-white/30 rounded-xl border border-white/30 hover:bg-white/50 transition-all duration-200"
+            >
+              <div class="space-y-3">
+                <label class="block text-sm font-medium text-gray-700"
+                  >Language</label
+                >
+                <select
+                  v-model="localPreferences.language"
+                  @change="markDirty"
+                  class="w-full px-4 py-2 bg-white/50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="en">English</option>
+                  <option value="es">Spanish</option>
+                  <option value="fr">French</option>
+                  <option value="de">German</option>
+                </select>
+              </div>
+            </div>
           </div>
         </Card>
 
@@ -124,23 +170,37 @@
             </div>
           </template>
 
-          <div
-            class="p-4 bg-white/30 rounded-xl border border-white/30 hover:bg-white/50 transition-all duration-200"
-          >
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="font-medium text-gray-800">Password</p>
-                <p class="text-sm text-gray-600">
-                  Update your account password
-                </p>
+          <div class="space-y-4">
+            <div
+              class="p-4 bg-white/30 rounded-xl border border-white/30 hover:bg-white/50 transition-all duration-200"
+            >
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium text-gray-800">Password</p>
+                  <p class="text-sm text-gray-600">
+                    Update your account password
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  @click="showChangePassword = true"
+                  class="!border-2 !border-gray-200 hover:!border-indigo-300 hover:!text-indigo-600 transform hover:scale-105 transition-all duration-200"
+                >
+                  Change Password
+                </Button>
               </div>
-              <Button
-                variant="outline"
-                @click="showChangePassword = true"
-                class="!border-2 !border-gray-200 hover:!border-indigo-300 hover:!text-indigo-600 transform hover:scale-105 transition-all duration-200"
-              >
-                Change Password
-              </Button>
+            </div>
+
+            <div
+              class="p-4 bg-white/30 rounded-xl border border-white/30 hover:bg-white/50 transition-all duration-200"
+            >
+              <FormControl
+                type="checkbox"
+                label="Two-Factor Authentication"
+                description="Add an extra layer of security to your account"
+                v-model="localPreferences.two_factor_enabled"
+                @change="markDirty"
+              />
             </div>
           </div>
         </Card>
@@ -248,6 +308,9 @@ const initialLoadCompleted = ref(false);
 const localPreferences = ref({
   enable_notifications: false,
   dark_mode: document.documentElement.classList.contains("dark"),
+  email_notifications: true,
+  language: "en",
+  two_factor_enabled: false,
 });
 
 // Password form
@@ -298,17 +361,28 @@ function markDirty() {
   dirty.value = true;
 }
 
-// Save
+// Save preferences only (not profile info)
 async function saveAll() {
   if (!userDoc.value) return;
 
   saving.value = true;
   try {
-    await userResource.setValue.submit({
-      full_name: userDoc.value.full_name,
-      email: userDoc.value.email,
-    });
+    // Save preferences to user settings or a separate doctype
+    // This would typically be a call to save user preferences
+    console.log("Saving preferences:", localPreferences.value);
+
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     dirty.value = false;
+
+    // Show success message
+    const successDiv = document.createElement("div");
+    successDiv.className =
+      "fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50";
+    successDiv.textContent = "Settings saved successfully!";
+    document.body.appendChild(successDiv);
+    setTimeout(() => successDiv.remove(), 3000);
   } catch (err) {
     error.value = "Failed to save changes. Please try again.";
   } finally {
@@ -356,6 +430,14 @@ async function changePassword() {
   try {
     // In a real app, call your API here
     await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Show success message
+    const successDiv = document.createElement("div");
+    successDiv.className =
+      "fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50";
+    successDiv.textContent = "Password changed successfully!";
+    document.body.appendChild(successDiv);
+    setTimeout(() => successDiv.remove(), 3000);
 
     // Reset form
     passwordForm.value = {

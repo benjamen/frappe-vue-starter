@@ -67,7 +67,7 @@ export const usePageConfigStore = defineStore("pageConfig", {
   actions: {
     async fetchConfigs() {
       if (this.loaded) {
-        console.log("[PageConfig] Already loaded, skipping fetch.");
+
         return;
       }
       let response;
@@ -85,7 +85,7 @@ export const usePageConfigStore = defineStore("pageConfig", {
           order_by: "modified desc",
           limit_page_length: 1000,
         });
-        console.log("[PageConfig] Raw response:", response);
+
       } catch (err) {
         console.warn("[PageConfig] Failed to fetch configs:", err);
         this.configs = [];
@@ -115,7 +115,6 @@ export const usePageConfigStore = defineStore("pageConfig", {
         // fallback: take the first array property found in object
         rows = Object.values(response).find((v) => Array.isArray(v)) || [];
       }
-      console.log("[PageConfig] Loaded configs (raw rows):", rows);
 
       // Map and normalize each config row
       // In pageConfig.js
@@ -127,8 +126,6 @@ export const usePageConfigStore = defineStore("pageConfig", {
         icon: iconMap[cfg.custom_ui_icon] || faHome,
       }));
 
-
-      console.log("[PageConfig] Normalized configs:", this.configs);
       this.loaded = true;
     },
   },
