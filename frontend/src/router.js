@@ -11,6 +11,7 @@ const AdminLayout = () => import('./layouts/AdminLayout.vue')
 const Tasks = () => import('./pages/Tasks.vue')
 const Generic = () => import('./pages/GenericDocList.vue')
 const WebForm = () => import('./pages/WebFormPage.vue')
+const WebFormList = () => import('./pages/WebFormListPage.vue')
 
 
 const routes = [
@@ -29,6 +30,7 @@ const routes = [
       { path: 'settings', name: 'Settings', component: Settings },
       { path: 'tasks', name: 'Tasks', component: Tasks },
       { path: 'form/:name', name: 'WebFormPage', component: WebForm, props: true },
+      { path: 'form/:name/list', name: 'WebFormListPage', component: WebFormList, props: true },
       { path: 'list/:doctype', name: 'GenericList', component: Generic, props: true },
     ],
   },

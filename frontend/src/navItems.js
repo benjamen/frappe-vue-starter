@@ -25,7 +25,7 @@ export function useNavItems() {
       .filter(cfg => cfg.published_to_custom_ui) // or whatever flag you use
       .map(cfg => ({
         name: cfg.displayName || cfg.title || cfg.name,
-        to: `/form/${cfg.name}`,
+        to: `/form/${cfg.name}/list`,
         icon: iconMap[cfg.custom_ui_icon] || faHome,
       }));
 
