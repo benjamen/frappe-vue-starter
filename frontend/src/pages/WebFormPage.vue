@@ -47,7 +47,7 @@
 
     <!-- Form Content -->
     <div v-else-if="webForm" class="bg-white dark:bg-gray-900 shadow-lg rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <form @submit.prevent="onSubmit" class="p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8">
+      <form @submit.prevent="onSubmit(false)" class="p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8">
         <template v-for="(section, sIdx) in sections" :key="sIdx">
           <!-- Section Heading -->
           <div
@@ -215,7 +215,7 @@
                       v-model="formValues[field.fieldname]"
                       :required="field.reqd"
                       :readonly="field.read_only"
-                      :rows="field.fieldtype === 'Long Text' || field.fieldtype === 'Text Editor' ? 8 : field.fieldtype === 'Small Text' ? 3 : 5"
+                      :rows="getTextareaRows(field)"
                     />
 
                     <!-- Checkbox -->
@@ -305,18 +305,41 @@
           </button>
           <div v-else class="hidden sm:block"></div>
 
-          <!-- Submit Button -->
-          <button
-            type="submit"
-            :disabled="loading"
-            class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold text-base rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed w-full sm:w-auto"
-          >
-            <svg v-if="loading" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            {{ loading ? 'Saving...' : (isNew ? 'Create Entry' : 'Update Entry') }}
-          </button>
+          <!-- Save Buttons -->
+          <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <!-- Save Button (stays on page) -->
+            <button
+              type="submit"
+              :disabled="loading"
+              class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold text-base rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed w-full sm:w-auto"
+            >
+              <svg v-if="loading" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              {{ loading ? 'Saving...' : 'Save' }}
+            </button>
+
+            <!-- Save and Close Button -->
+            <button
+              type="button"
+              @click="onSubmit(true)"
+              :disabled="loading"
+              class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold text-base rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed w-full sm:w-auto"
+            >
+              <svg v-if="loading" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+              {{ loading ? 'Saving...' : (isNew ? 'Create & Close' : 'Save & Close') }}
+            </button>
+          </div>
         </div>
       </form>
     </div>
@@ -387,6 +410,23 @@ function getGridClass(columnCount) {
   if (columnCount === 3) return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
   if (columnCount === 4) return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4';
   return `grid-cols-1 md:grid-cols-2 lg:grid-cols-${Math.min(columnCount, 6)}`;
+}
+
+// Get textarea rows based on field type and description
+function getTextareaRows(field) {
+  // Check if field label or description contains keywords that suggest it's a description field
+  const isDescriptionField = field.label.toLowerCase().includes('description') ||
+                             field.description?.toLowerCase().includes('description') ||
+                             field.fieldname.toLowerCase().includes('description');
+
+  if (field.fieldtype === 'Long Text' || field.fieldtype === 'Text Editor') {
+    return isDescriptionField ? 10 : 8;
+  } else if (field.fieldtype === 'Small Text') {
+    return isDescriptionField ? 5 : 3;
+  } else if (field.fieldtype === 'Text') {
+    return isDescriptionField ? 8 : 5;
+  }
+  return 5;
 }
 
 function parseSections(fields) {

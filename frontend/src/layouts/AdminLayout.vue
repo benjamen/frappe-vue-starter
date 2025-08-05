@@ -66,17 +66,6 @@
               @click="showSettingsMenu = false"
               class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 py-1"
             >
-              <a
-                :href="profileUrl"
-                @click="handleProfileClick"
-                class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                <span class="text-sm" v-if="!profileLoading">👤</span>
-                <span class="text-sm animate-spin" v-else>⏳</span>
-                <span>{{
-                  profileLoading ? "Loading..." : "Edit Profile"
-                }}</span>
-              </a>
               <router-link
                 to="/settings"
                 class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -146,21 +135,11 @@ const showSettingsMenu = ref(false);
 const route = useRoute();
 const router = useRouter();
 
-const profileLoading = ref(false);
-
 const isActive = (path) => route.path === path;
 const isLoggedIn = computed(() => session.isLoggedIn);
 
-// Profile URL with current user
-const profileUrl = computed(() => {
-  const currentUser =
-    session.user?.name || session.user?.username || "Administrator";
-  return `http://localhost:8080/frontend/form/edit-profile?doc=${currentUser}`;
-});
-
 // Handle profile click with loading state
 const handleProfileClick = (event) => {
-  profileLoading.value = true;
   showSettingsMenu.value = false;
   // Loading state will be reset when page navigates away
 };
