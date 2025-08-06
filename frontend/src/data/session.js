@@ -64,7 +64,7 @@ export const session = reactive({
       }
     },
     onSuccess(data) {
-      userResource.reload()
+      userResource.load({ force: true }) 
       session.user = sessionUser()
       // Refresh CSRF token after login
       refreshCSRFToken()
