@@ -1,5 +1,10 @@
 Frappe-UI with Vue 3 on Frappe App
 
+Based on all the work from here - https://github.com/NagariaHussain/doppio_frappeui_starter
+[Start here]
+https://github.com/NagariaHussain/doppio
+bench add-frappe-ui
+
 ✅bench new-site home.localhost -  Create a new site
 
 
