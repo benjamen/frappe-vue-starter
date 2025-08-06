@@ -12,15 +12,8 @@ bench --site your-site-name enable-scheduler - FOR EMAIL TO WORK
 ✅bench get-app homemain https://github.com/benjamen/frappe-vue-starter.git --branch main
 ✅bench --site home.localhost install-app homemain
 
-apps/
-└── homemain/
-    ├── homemain/        ← Frappe app module
-    ├── setup.py
-    └── frontend/        ← Vue 3 + Tailwind + frappe-ui app
-        ├── package.json
-        ├── vite.config.ts
-        ├── src/
-        └── ...
+<img width="619" height="243" alt="image" src="https://github.com/user-attachments/assets/5f7af7b3-7bfc-4fd8-8e5e-3c9b46970f07" />
+
 
 ✅ Step-by-Step: Install and Run frontend
 ✅ 1. Navigate to the frontend folder
