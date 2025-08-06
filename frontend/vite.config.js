@@ -22,7 +22,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 1500,
     outDir: "../homemain/public/frontend",
     emptyOutDir: true,
-    target: "es2015",
+    target: "es2022",
     sourcemap: true,
   },
   resolve: {
