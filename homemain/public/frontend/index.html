@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/assets/homemain/frontend/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frappe UI Starter</title>
+
+    <script type="module" crossorigin src="/assets/homemain/frontend/assets/index-CBDyEeFS.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/homemain/frontend/assets/index-tZmBtfgD.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+        window.user_id = "{{ frappe.session.user }}";
+        window.csrf_token = '{{ frappe.session.csrf_token }}'
+    </script>
+  
+          <script>
+              {% for key in boot %}
+              window["{{ key }}"] = {{ boot[key] | tojson }};
+              {% endfor %}
+          </script>
+          </body>
+          
+</html>

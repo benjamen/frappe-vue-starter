@@ -36,7 +36,16 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': 'http://localhost:8000', // point to frappe
+      '/api': {
+        target: 'http://home.localhost:8000',  // Use your actual site URL
+        changeOrigin: true,
+        secure: false,
+      },
+      '/assets': {
+        target: 'http://home.localhost:8000',  // Use your actual site URL
+        changeOrigin: true,
+        secure: false,
+      },
     },
     allowedHosts: true,
     host: "0.0.0.0",

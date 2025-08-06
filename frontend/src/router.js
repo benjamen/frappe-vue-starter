@@ -6,7 +6,6 @@ import { session } from './data/session'
 const Home = () => import('./pages/Home.vue')
 const Login = () => import('./pages/Login.vue')
 const Dashboard = () => import('./pages/Dashboard.vue')
-const Settings = () => import('./pages/Settings.vue')
 const AdminLayout = () => import('./layouts/AdminLayout.vue')
 const Tasks = () => import('./pages/Tasks.vue')
 const Generic = () => import('./pages/GenericDocList.vue')
@@ -29,13 +28,25 @@ const routes = [
       { path: '', redirect: '/dashboard' },
       { path: 'home', name: 'Home', component: Home },
       { path: 'dashboard', name: 'Dashboard', component: Dashboard },
-      { path: 'settings', name: 'Settings', component: Settings },
       { path: 'tasks', name: 'Tasks', component: Tasks },
+      {
+        path: 'update-profile',
+        name: 'UpdateProfile', 
+        component: () => import('./pages/UpdateProfile.vue'), // or whatever component you want
+        meta: { title: 'Update Profile' }
+      },
       {
         path: 'form/:name',
         name: 'WebFormPage',
         component: WebForm,
         props: true,
+        meta: { title: 'Form' }
+      },
+      {
+        path: 'form/:name/single',
+        name: 'WebFormSingle',
+        component: WebForm,
+        props: route => ({ ...route.params, mode: 'single' }),
         meta: { title: 'Form' }
       },
       {

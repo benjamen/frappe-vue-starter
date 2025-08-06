@@ -5,9 +5,12 @@ import { initSocket } from "./socket";
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { usePageConfigStore } from "@/stores/pageConfig";
 import { createPinia } from "pinia";
+import { session } from "./data/session"; // Import session to get CSRF token
+import { userResource, updateUserResource } from './data/user'
+
+
+
 const pinia = createPinia();
-
-
 
 // Frappe UI imports
 import {
@@ -36,10 +39,24 @@ const app = createApp(App);
 
 app.use(pinia);
 
+// Configure frappe-ui with CSRF token
+setConfig("resourceFetcher", (options) => {
+  // Add CSRF token to all requests
+  if (!options.headers) {
+    options.headers = {};
+  }
+  
+  // Add CSRF token if we have one
+  if (session.csrfToken) {
+    options.headers['X-Frappe-CSRF-Token'] = session.csrfToken;
+  }
+  
+  return frappeRequest(options);
+});
+
 // Fetch and wait for configs before mounting
 const pageConfig = usePageConfigStore();
 await pageConfig.fetchConfigs();  // <- IMPORTANT: Await before app.mount
-
 
 // Provide toast
 const toast = (options) => {
@@ -59,20 +76,20 @@ app.component('LoadingText', LoadingText);
 
 app.component('fa-icon', FontAwesomeIcon);
 
-setConfig("resourceFetcher", frappeRequest);
-
+app.use(resourcesPlugin, {
+  resources: {
+    getUser: userResource,
+    updateUser: updateUserResource
+  }
+});
 app.use(router);
-app.use(resourcesPlugin);
 app.use(pageMetaPlugin);
+
+
 
 // --- 2. INIT SOCKET ---
 const socket = initSocket();
 app.config.globalProperties.$socket = socket;
 
-
-
 // --- 4. NOW MOUNT ---
 app.mount("#app");
-
-
-
