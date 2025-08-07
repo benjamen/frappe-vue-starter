@@ -5,10 +5,10 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "title",
   "address",
-  "property_id",
-  "legal_description",
+  "council_address",
+  "council_property_id",
+  "council_legal_description",
   "valuation_number",
   "property_area_sqm",
   "record_of_title",
@@ -26,29 +26,9 @@
  ],
  "fields": [
   {
-   "fieldname": "address",
-   "fieldtype": "Data",
-   "label": "Address"
-  },
-  {
-   "fieldname": "title",
-   "fieldtype": "Data",
-   "label": "Title"
-  },
-  {
    "fieldname": "description",
    "fieldtype": "Text",
    "label": "Description"
-  },
-  {
-   "fieldname": "property_id",
-   "fieldtype": "Data",
-   "label": "Council Property ID"
-  },
-  {
-   "fieldname": "legal_description",
-   "fieldtype": "Data",
-   "label": "Legal Description"
   },
   {
    "fieldname": "valuation_number",
@@ -115,11 +95,31 @@
    "fieldname": "scraper_message",
    "fieldtype": "Data",
    "label": "Scraper Message"
+  },
+  {
+   "fieldname": "council_property_id",
+   "fieldtype": "Data",
+   "label": "Council Property ID"
+  },
+  {
+   "fieldname": "council_address",
+   "fieldtype": "Data",
+   "label": "Council Address"
+  },
+  {
+   "fieldname": "council_legal_description",
+   "fieldtype": "Data",
+   "label": "Legal Description"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Data",
+   "label": "Address"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-07 16:38:43.750340",
+ "modified": "2025-08-07 17:24:22.537575",
  "modified_by": "Administrator",
  "module": "Homemain",
  "name": "Home",
