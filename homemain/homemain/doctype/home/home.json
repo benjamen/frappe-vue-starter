@@ -7,7 +7,22 @@
  "field_order": [
   "title",
   "address",
-  "description"
+  "property_id",
+  "legal_description",
+  "valuation_number",
+  "property_area_sqm",
+  "record_of_title",
+  "capital_value",
+  "land_value",
+  "city_council_rates",
+  "regional_council_rates",
+  "total_rates",
+  "rates_pdf_url",
+  "description",
+  "rates_pdf_path",
+  "pdf_main_image_path",
+  "scraper_status",
+  "scraper_message"
  ],
  "fields": [
   {
@@ -24,11 +39,87 @@
    "fieldname": "description",
    "fieldtype": "Text",
    "label": "Description"
+  },
+  {
+   "fieldname": "property_id",
+   "fieldtype": "Data",
+   "label": "Council Property ID"
+  },
+  {
+   "fieldname": "legal_description",
+   "fieldtype": "Data",
+   "label": "Legal Description"
+  },
+  {
+   "fieldname": "valuation_number",
+   "fieldtype": "Data",
+   "label": "Valuation Number"
+  },
+  {
+   "fieldname": "property_area_sqm",
+   "fieldtype": "Float",
+   "label": "Property Area (sqm)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "record_of_title",
+   "fieldtype": "Data",
+   "label": "Record of Title"
+  },
+  {
+   "fieldname": "rates_pdf_url",
+   "fieldtype": "Data",
+   "label": "Rates PDF URL"
+  },
+  {
+   "fieldname": "capital_value",
+   "fieldtype": "Currency",
+   "label": "Capital Value"
+  },
+  {
+   "fieldname": "land_value",
+   "fieldtype": "Currency",
+   "label": "Land Value"
+  },
+  {
+   "fieldname": "city_council_rates",
+   "fieldtype": "Currency",
+   "label": "City Council Rates"
+  },
+  {
+   "fieldname": "regional_council_rates",
+   "fieldtype": "Currency",
+   "label": "Regional Council Rates"
+  },
+  {
+   "fieldname": "total_rates",
+   "fieldtype": "Currency",
+   "label": "Total Rates"
+  },
+  {
+   "fieldname": "pdf_main_image_path",
+   "fieldtype": "Data",
+   "label": "PDF Main Image Path"
+  },
+  {
+   "fieldname": "rates_pdf_path",
+   "fieldtype": "Attach",
+   "label": "Local PDF Path"
+  },
+  {
+   "fieldname": "scraper_status",
+   "fieldtype": "Data",
+   "label": "Scraper Status"
+  },
+  {
+   "fieldname": "scraper_message",
+   "fieldtype": "Data",
+   "label": "Scraper Message"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-31 15:39:01.494734",
+ "modified": "2025-08-07 16:38:43.750340",
  "modified_by": "Administrator",
  "module": "Homemain",
  "name": "Home",
@@ -47,6 +138,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

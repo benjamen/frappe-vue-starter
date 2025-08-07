@@ -1,9 +1,24 @@
-# Copyright (c) 2025, Optified and contributors
-# For license information, please see license.txt
+# homemain/doctype/home/home.py
 
-# import frappe
+import frappe
 from frappe.model.document import Document
 
-
 class Home(Document):
-	pass
+    def after_insert(self):
+        # Run after first insert
+        self.enqueue_scrape()   # ✅ Yes, good
+
+    def validate(self):
+        # Run on every save; only scrape if address changed
+        if self.is_new() or self.has_value_changed("address"):
+            self.enqueue_scrape()   # ✅ Yes, good
+
+    def enqueue_scrape(self):
+        # Set status and message fields (make sure these are in your DocType!)
+        self.db_set("scraper_status", "Pending")
+        self.db_set("scraper_message", "Queued for scraping")
+        # Enqueue the background scraping job
+        frappe.enqueue(
+            "homemain.property_council_scraper.scrape_and_update_home",
+            docname=self.name
+        )
