@@ -66,32 +66,35 @@ export const usePageConfigStore = defineStore("pageConfig", {
   }),
   actions: {
     async fetchConfigs() {
+      console.log("[PageConfig] fetchConfigs called. Loaded flag:", this.loaded);
+
       if (this.loaded) {
+        console.log("[PageConfig] Already loaded, skipping fetch.");
         return;
       }
       let response;
       try {
-        // Use the actual custom field names with custom_ prefix
+        console.log("[PageConfig] Attempting to fetch with custom fields...");
         response = await call("frappe.client.get_list", {
           doctype: "Web Form",
           fields: [
             "name",
             "title",
             "route",
-            "custom_published_to_custom_ui", // Note the custom_ prefix
-            "custom_custom_ui_icon",        // Note the custom_ prefix
+            "custom_published_to_custom_ui",
+            "custom_custom_ui_icon",
             "is_standard",
           ],
-          filters: [["custom_published_to_custom_ui", "=", 1]], // Filter with correct field name
+          filters: [["custom_published_to_custom_ui", "=", 1]],
           order_by: "modified desc",
           limit_page_length: 1000,
         });
-
+        console.log("[PageConfig] Response with custom fields:", response);
       } catch (err) {
         console.warn("[PageConfig] Custom fields not available, using fallback:", err);
-        
-        // Fallback to standard fields
+
         try {
+          console.log("[PageConfig] Attempting to fetch with fallback fields...");
           response = await call("frappe.client.get_list", {
             doctype: "Web Form",
             fields: [
@@ -105,6 +108,7 @@ export const usePageConfigStore = defineStore("pageConfig", {
             order_by: "modified desc",
             limit_page_length: 1000,
           });
+          console.log("[PageConfig] Response with fallback fields:", response);
         } catch (fallbackErr) {
           console.error("[PageConfig] Fallback also failed:", fallbackErr);
           this.configs = [];
@@ -136,37 +140,35 @@ export const usePageConfigStore = defineStore("pageConfig", {
         rows = Object.values(response).find((v) => Array.isArray(v)) || [];
       }
 
+      console.log("[PageConfig] Normalized rows:", rows);
+
       // Map and normalize each config row using your custom fields
       this.configs = rows.map((cfg) => {
-        // Determine routing based on form type
         let routePath;
         if (cfg.route?.startsWith("/")) {
-          // Use custom route if provided
           routePath = cfg.route;
         } else if (cfg.is_standard || cfg.name?.toLowerCase().includes('profile')) {
-          // For single document forms like profile - route to single doc view
           routePath = `/form/${cfg.name}/single`;
         } else {
-          // For multi-document forms - route to list view
           routePath = `/form/${cfg.name}/list`;
         }
 
-        return {
+        const mappedCfg = {
           ...cfg,
-          name: cfg.name, // Frappe document name for API calls
-          displayName: cfg.title || cfg.name, // Display name for navigation
+          name: cfg.name,
+          displayName: cfg.title || cfg.name,
           to: routePath,
-          // Use the correct custom field name with custom_ prefix
-          icon: iconMap[cfg.custom_custom_ui_icon] || faHome, 
-          isSingle: cfg.is_standard || cfg.name?.toLowerCase().includes('profile'), // Flag for single docs
+          icon: iconMap[cfg.custom_custom_ui_icon] || faHome,
+          isSingle: cfg.is_standard || cfg.name?.toLowerCase().includes('profile'),
         };
+        console.log("[PageConfig] Mapped config:", mappedCfg);
+        return mappedCfg;
       });
 
       console.log("[PageConfig] Final configs loaded:", this.configs);
       this.loaded = true;
     },
-    
-    // Method to force reload configs
+
     async reloadConfigs() {
       console.log("[PageConfig] Forcing reload...");
       this.loaded = false;

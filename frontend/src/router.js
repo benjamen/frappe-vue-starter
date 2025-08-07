@@ -2,114 +2,80 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { session } from './data/session'
 
-// lazy‑load pages
-const Home = () => import('./pages/Home.vue')
-const Login = () => import('./pages/Login.vue')
-const Dashboard = () => import('./pages/Dashboard.vue')
-const AdminLayout = () => import('./layouts/AdminLayout.vue')
-const Tasks = () => import('./pages/Tasks.vue')
-const Generic = () => import('./pages/GenericDocList.vue')
-const WebForm = () => import('./pages/WebFormPage.vue')
-const WebFormList = () => import('./pages/WebFormListPage.vue')
-const NotFound = () => import('./pages/NotFound.vue') // Add 404 page
-
+// Simple route definitions
 const routes = [
   {
-    path: '/account/login',
+    path: '/login',
     name: 'Login',
-    component: Login,
+    component: () => import('./pages/Login.vue'),
     meta: { requiresAuth: false }
   },
   {
     path: '/',
-    component: AdminLayout,
+    component: () => import('./layouts/AdminLayout.vue'),
     meta: { requiresAuth: true },
     children: [
-      { path: '', redirect: '/dashboard' },
-      { path: 'home', name: 'Home', component: Home },
-      { path: 'dashboard', name: 'Dashboard', component: Dashboard },
-      { path: 'tasks', name: 'Tasks', component: Tasks },
       {
-        path: 'update-profile',
-        name: 'UpdateProfile', 
-        component: () => import('./pages/UpdateProfile.vue'), // or whatever component you want
-        meta: { title: 'Update Profile' }
+        path: '',
+        redirect: '/dashboard'
+      },
+      {
+        path: 'dashboard',
+        name: 'Dashboard',
+        component: () => import('./pages/Dashboard.vue')
+      },
+      {
+        path: 'home',
+        name: 'Home',
+        component: () => import('./pages/Home.vue')
+      },
+      {
+        path: 'tasks',
+        name: 'Tasks',
+        component: () => import('./pages/Tasks.vue')
+      },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: () => import('./pages/UpdateProfile.vue')
       },
       {
         path: 'form/:name',
-        name: 'WebFormPage',
-        component: WebForm,
-        props: true,
-        meta: { title: 'Form' }
-      },
-      {
-        path: 'form/:name/single',
-        name: 'WebFormSingle',
-        component: WebForm,
-        props: route => ({ ...route.params, mode: 'single' }),
-        meta: { title: 'Form' }
+        name: 'WebForm',
+        component: () => import('./pages/WebFormPage.vue'),
+        props: true
       },
       {
         path: 'form/:name/list',
-        name: 'WebFormListPage',
-        component: WebFormList,
-        props: true,
-        meta: { title: 'Form List' }
-      },
-      {
-        path: 'list/:doctype',
-        name: 'GenericList',
-        component: Generic,
-        props: true,
-        meta: { title: 'List' }
-      },
-    ],
+        name: 'WebFormList',
+        component: () => import('./pages/WebFormListPage.vue'),
+        props: true
+      }
+    ]
   },
-  // Catch-all 404 route
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
-    component: NotFound,
-    meta: { requiresAuth: false }
+    component: () => import('./pages/NotFound.vue')
   }
 ]
 
 const router = createRouter({
-  history: createWebHistory('/frontend'),
-  routes,
+  history: createWebHistory('/'),
+  routes
 })
 
-router.beforeEach(async (to, from, next) => {
-  // Check if route requires authentication
+// Simple auth guard
+router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth !== false)
 
-  try {
-    // If going to login and already logged in, redirect to dashboard
-    if (to.name === 'Login' && session.isLoggedIn) {
-      next({ name: 'Dashboard' })
-      return
-    }
-
-    // If route requires auth and user is not logged in, redirect to login
-    if (requiresAuth && !session.isLoggedIn) {
-      next({
-        name: 'Login',
-        query: { redirect: to.fullPath } // Save intended destination
-      })
-      return
-    }
-
+  if (to.name === 'Login' && session.isLoggedIn) {
+    next('/dashboard')
+  } else if (requiresAuth && !session.isLoggedIn) {
+    next(`/login?redirect=${encodeURIComponent(to.fullPath)}`)
+  } else {
     next()
-  } catch (error) {
-    console.error('Router navigation error:', error)
-    next({ name: 'Login' })
   }
-})
-
-// Optional: Set page titles
-router.afterEach((to) => {
-  const title = to.meta?.title || to.name || 'MyApp'
-  document.title = `${title} - MyApp`
 })
 
 export default router

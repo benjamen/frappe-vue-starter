@@ -1,62 +1,27 @@
-import router from "@/router"
+// src/data/session.js
 import { createResource } from "frappe-ui"
-import { computed, reactive } from "vue"
+import { reactive, computed } from "vue"
 
-import { userResource } from "./user"
-
-export function sessionUser() {
+// Simple cookie helper
+function getCookie(name) {
   const cookies = new URLSearchParams(document.cookie.split("; ").join("&"))
-  let _sessionUser = cookies.get("user_id")
-  if (_sessionUser === "Guest") {
-    _sessionUser = null
-  }
-  return _sessionUser
+  return cookies.get(name)
 }
 
-export function getCSRFToken() {
-  // Try to get from window first (set by Jinja template)
-  if (window.csrf_token) {
-    return window.csrf_token;
-  }
-  
-  // Fallback to cookie
-  const cookies = new URLSearchParams(document.cookie.split("; ").join("&"));
-  return cookies.get("csrf_token") || '';
+// Get current user from cookie
+function getCurrentUserFromCookie() {
+  const user = getCookie("user_id")
+  return user && user !== "Guest" ? user : null
 }
 
-// Function to refresh CSRF token
-export async function refreshCSRFToken() {
-  try {
-    const response = await fetch('/api/method/frappe.sessions.get_csrf_token', {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    if (data.message) {
-      session.csrfToken = data.message;
-      window.csrf_token = data.message; // Update window global too
-      return data.message;
-    }
-  } catch (error) {
-    console.warn('Failed to refresh CSRF token:', error);
-    // Fallback to existing token
-  }
-  return session.csrfToken;
-}
-
+// Session state - keep it simple
 export const session = reactive({
-  csrfToken: getCSRFToken(),
+  user: getCurrentUserFromCookie(),
+  isLoggedIn: computed(() => !!session.user),
+  
+  // Login resource
   login: createResource({
-    url: "login",
+    url: "login", 
     makeParams({ email, password }) {
       return {
         usr: email,
@@ -64,23 +29,44 @@ export const session = reactive({
       }
     },
     onSuccess(data) {
-      userResource.load({ force: true }) 
-      session.user = sessionUser()
-      // Refresh CSRF token after login
-      refreshCSRFToken()
-      session.login.reset()
-      router.replace(data.default_route || "/")
+      // Update user from cookie after login
+      session.user = getCurrentUserFromCookie()
+      
+      // Navigate to intended route or dashboard
+      const redirect = new URLSearchParams(window.location.search).get('redirect') || '/dashboard'
+      window.location.href = redirect
     },
+    onError(error) {
+      console.error('Login failed:', error)
+    }
   }),
+
+  // Logout resource  
   logout: createResource({
     url: "logout",
     onSuccess() {
-      userResource.reset()
-      session.user = sessionUser()
-      session.csrfToken = '' // Clear CSRF token on logout
-      router.replace({ name: "Login" })
+      session.user = null
+      window.location.href = '/login'
     },
+    onError() {
+      // Force logout even if API fails
+      session.user = null
+      window.location.href = '/login'
+    }
   }),
-  user: sessionUser(),
-  isLoggedIn: computed(() => !!session.user),
+
+  // Simple user profile resource
+  userProfile: createResource({
+    url: "frappe.auth.get_logged_user",
+    auto: false,
+    onSuccess(userData) {
+      // Store basic user info if needed
+      session.userInfo = userData
+    }
+  })
 })
+
+// Auto-load user profile if logged in
+if (session.isLoggedIn) {
+  session.userProfile.fetch()
+}

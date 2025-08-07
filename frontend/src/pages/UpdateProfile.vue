@@ -1,593 +1,238 @@
 <template>
   <div class="update-profile">
-    <div class="page-header">
-      <h1>Update Profile</h1>
-      <p class="text-muted">Manage your personal information and account settings</p>
+    <!-- Loading state -->
+    <div v-if="userProfile.loading" class="flex justify-center items-center py-8">
+      <LoadingText text="Loading profile..." />
     </div>
 
-    <div class="profile-form-container">
-      <form @submit.prevent="handleSubmit" class="profile-form">
-        <!-- Profile Picture Section -->
-        <div class="profile-picture-section">
-          <div class="profile-avatar">
-            <img 
-              :src="profileData.avatar || '/images/default-avatar.png'" 
-              :alt="profileData.full_name"
-              class="avatar-image"
+    <!-- Error state -->
+    <div
+      v-else-if="userProfile.error"
+      class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6"
+    >
+      <h3 class="text-red-800 font-medium">Error Loading Profile</h3>
+      <p class="text-red-600 text-sm mt-1">{{ userProfile.error.message }}</p>
+      <Button @click="userProfile.fetch()" class="mt-3" variant="outline" size="sm">
+        Try Again
+      </Button>
+    </div>
+
+    <!-- Profile form -->
+    <div v-else-if="userProfile.data" class="space-y-6">
+      <!-- Avatar Section -->
+      <Card class="p-6">
+        <h3 class="text-lg font-medium mb-4">Profile Picture</h3>
+        <div class="flex items-center space-x-4">
+          <div
+            class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden"
+          >
+            <img
+              v-if="userProfile.data.avatar || userProfile.data.user_image"
+              :src="userProfile.data.avatar || userProfile.data.user_image"
+              :alt="userProfile.data.full_name || userProfile.data.first_name"
+              class="w-full h-full object-cover"
             />
-            <div class="avatar-overlay">
-              <input 
-                type="file" 
-                ref="fileInput" 
-                @change="handleFileUpload" 
-                accept="image/*" 
-                class="file-input"
-              />
-              <button type="button" @click="$refs.fileInput.click()" class="change-photo-btn">
-                <i class="fa fa-camera"></i>
-                Change Photo
-              </button>
-            </div>
+            <span v-else class="text-gray-500 text-sm">
+              {{ getInitials(userProfile.data.full_name || userProfile.data.first_name || "U") }}
+            </span>
+          </div>
+          <div>
+            <Button variant="outline" size="sm"> Change Avatar </Button>
+            <p class="text-sm text-gray-500 mt-1">
+              JPG, PNG or GIF. Max size 2MB.
+            </p>
           </div>
         </div>
+      </Card>
 
-        <!-- Personal Information -->
-        <div class="form-section">
-          <h3>Personal Information</h3>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="firstName">First Name *</label>
-              <input 
-                type="text" 
-                id="firstName"
-                v-model="profileData.first_name" 
-                required 
-                class="form-control"
-                :disabled="loading"
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="lastName">Last Name</label>
-              <input 
-                type="text" 
-                id="lastName"
-                v-model="profileData.last_name" 
-                class="form-control"
-                :disabled="loading"
-              />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="email">Email Address *</label>
-              <input 
-                type="email" 
-                id="email"
-                v-model="profileData.email" 
-                required 
-                class="form-control"
-                :disabled="loading"
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="mobile">Mobile Number</label>
-              <input 
-                type="tel" 
-                id="mobile"
-                v-model="profileData.mobile_no" 
-                class="form-control"
-                :disabled="loading"
-              />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="bio">Bio</label>
-            <textarea 
-              id="bio"
-              v-model="profileData.bio" 
-              class="form-control"
-              rows="3"
-              placeholder="Tell us about yourself..."
-              :disabled="loading"
-            ></textarea>
-          </div>
+      <!-- Basic Information -->
+      <Card class="p-6">
+        <h3 class="text-lg font-medium mb-4">Basic Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormControl
+            label="First Name"
+            v-model="form.first_name"
+            :placeholder="userProfile.data.first_name || 'Enter first name'"
+          />
+          <FormControl
+            label="Last Name"
+            v-model="form.last_name"
+            :placeholder="userProfile.data.last_name || 'Enter last name'"
+          />
+          <FormControl
+            label="Email"
+            type="email"
+            :model-value="userProfile.data.email"
+            disabled
+            class="opacity-75"
+          />
+          <FormControl
+            label="Mobile"
+            v-model="form.mobile_no"
+            :placeholder="userProfile.data.mobile_no || 'Enter mobile number'"
+          />
         </div>
+      </Card>
 
-        <!-- Account Settings -->
-        <div class="form-section">
-          <h3>Account Settings</h3>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="language">Language</label>
-              <select 
-                id="language"
-                v-model="profileData.language" 
-                class="form-control"
-                :disabled="loading"
-              >
-                <option value="en">English</option>
-                <option value="es">Spanish</option>
-                <option value="fr">French</option>
-                <option value="de">German</option>
-              </select>
-            </div>
-            
-            <div class="form-group">
-              <label for="timezone">Timezone</label>
-              <select 
-                id="timezone"
-                v-model="profileData.time_zone" 
-                class="form-control"
-                :disabled="loading"
-              >
-                <option value="UTC">UTC</option>
-                <option value="America/New_York">Eastern Time</option>
-                <option value="America/Chicago">Central Time</option>
-                <option value="America/Denver">Mountain Time</option>
-                <option value="America/Los_Angeles">Pacific Time</option>
-                <option value="Europe/London">London</option>
-                <option value="Europe/Paris">Paris</option>
-                <option value="Asia/Tokyo">Tokyo</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <div class="checkbox-group">
-              <label class="checkbox-label">
-                <input 
-                  type="checkbox" 
-                  v-model="profileData.email_notifications"
-                  :disabled="loading"
-                />
-                <span class="checkmark"></span>
-                Receive email notifications
-              </label>
-              
-              <label class="checkbox-label">
-                <input 
-                  type="checkbox" 
-                  v-model="profileData.newsletter_subscription"
-                  :disabled="loading"
-                />
-                <span class="checkmark"></span>
-                Subscribe to newsletter
-              </label>
-            </div>
-          </div>
+      <!-- Additional Information -->
+      <Card class="p-6">
+        <h3 class="text-lg font-medium mb-4">Additional Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormControl
+            label="Bio"
+            type="textarea"
+            v-model="form.bio"
+            :placeholder="userProfile.data.bio || 'Tell us about yourself'"
+            class="md:col-span-2"
+          />
+          <FormControl
+            label="Location"
+            v-model="form.location"
+            :placeholder="userProfile.data.location || 'Enter your location'"
+          />
+          <FormControl
+            label="Website"
+            v-model="form.website"
+            :placeholder="userProfile.data.website || 'Enter your website'"
+          />
         </div>
+      </Card>
 
-        <!-- Form Actions -->
-        <div class="form-actions">
-          <button 
-            type="button" 
-            @click="resetForm" 
-            class="btn btn-secondary"
-            :disabled="loading"
-          >
-            Reset Changes
-          </button>
-          
-          <button 
-            type="submit" 
-            class="btn btn-primary"
-            :disabled="loading || !hasChanges"
-          >
-            <i v-if="loading" class="fa fa-spinner fa-spin"></i>
-            {{ loading ? 'Saving...' : 'Save Changes' }}
-          </button>
-        </div>
-      </form>
+      <!-- Actions -->
+      <div class="flex justify-end space-x-3">
+        <Button variant="outline" @click="resetForm"> Cancel </Button>
+        <Button
+          @click="saveProfile"
+          :loading="updateProfile.loading"
+          :disabled="!hasChanges"
+        >
+          Save Changes
+        </Button>
+      </div>
     </div>
 
-    <!-- Success/Error Messages -->
-    <div v-if="message" :class="['alert', messageType === 'success' ? 'alert-success' : 'alert-error']">
-      {{ message }}
+    <!-- No data state -->
+    <div v-else class="text-center py-8">
+      <p class="text-gray-500">Unable to load profile data</p>
+      <Button @click="userProfile.fetch()" class="mt-3" variant="outline">
+        Retry
+      </Button>
     </div>
   </div>
 </template>
 
-<script>
-import { session } from '../data/session'
-import { userResource, updateUserResource } from '../data/user'
+<script setup>
+import { ref, computed, onMounted, watch } from 'vue'
+import { createResource } from 'frappe-ui'
+import { session } from '@/data/session'
 
+// Form data
+const form = ref({
+  first_name: '',
+  last_name: '',
+  mobile_no: '',
+  bio: '',
+  location: '',
+  website: ''
+})
 
-export default {
-  name: 'UpdateProfile',
-  data() {
+const originalForm = ref({})
+
+// Get user profile
+const userProfile = createResource({
+  url: 'frappe.client.get',
+  makeParams() {
     return {
-      loading: false,
-      message: '',
-      messageType: 'success',
-      originalData: {},
-      profileData: {
-        first_name: '',
-        last_name: '',
-        email: '',
-        mobile_no: '',
-        bio: '',
-        language: 'en',
-        time_zone: 'UTC',
-        email_notifications: true,
-        newsletter_subscription: false,
-        avatar: ''
-      }
+      doctype: 'User',
+      name: session.user
     }
   },
-  computed: {
-    hasChanges() {
-      return JSON.stringify(this.profileData) !== JSON.stringify(this.originalData)
+  auto: false,
+  onSuccess(data) {
+    // Populate form with user data
+    const userData = {
+      first_name: data.first_name || '',
+      last_name: data.last_name || '',
+      mobile_no: data.mobile_no || '',
+      bio: data.bio || '',
+      location: data.location || '',
+      website: data.website || ''
     }
-  },
-  async mounted() {
-    await this.loadProfile()
-  },
-  methods: {
-    async loadProfile() {
-      this.loading = true
-      try {
-        // Replace with your actual API call
-        if (!userResource?.load) {
-          console.warn('userResource.load is not available')
-          return
-        }
-        const response = await userResource.load()
-
-        
-        this.profileData = {
-          first_name: response.first_name || '',
-          last_name: response.last_name || '',
-          email: response.email || '',
-          mobile_no: response.mobile_no || '',
-          bio: response.bio || '',
-          language: response.language || 'en',
-          time_zone: response.time_zone || 'UTC',
-          email_notifications: response.email_notifications !== false,
-          newsletter_subscription: response.newsletter_subscription || false,
-          avatar: response.user_image || ''
-        }
-        
-        // Store original data for comparison
-        this.originalData = { ...this.profileData }
-        
-      } catch (error) {
-        console.error('Failed to load profile:', error)
-        this.showMessage('Failed to load profile data', 'error')
-      } finally {
-        this.loading = false
-      }
-    },
-    
-    async handleSubmit() {
-      this.loading = true
-      this.message = ''
-      
-      try {
-        // Replace with your actual API call
-        await updateUserResource.submit({
-          doc: this.profileData
-        })
-        // Update original data after successful save      
-        this.originalData = { ...this.profileData }
-        this.showMessage('Profile updated successfully!', 'success')
-
-
-        
-      } catch (error) {
-        console.error('Failed to update profile:', error)
-        this.showMessage('Failed to update profile. Please try again.', 'error')
-      } finally {
-        this.loading = false
-      }
-    },
-    
-    resetForm() {
-      this.profileData = { ...this.originalData }
-      this.message = ''
-    },
-
-    
-    async handleFileUpload(event) {
-      const file = event.target.files[0]
-      if (!file) return
-      
-      // Validate file
-      if (!file.type.startsWith('image/')) {
-        this.showMessage('Please select a valid image file', 'error')
-        return
-      }
-      
-      if (file.size > 2 * 1024 * 1024) { // 2MB limit
-        this.showMessage('Image size should be less than 2MB', 'error')
-        return
-      }
-      
-      this.loading = true
-      try {
-        // Create FormData for file upload
-        const formData = new FormData()
-        formData.append('file', file)
-        formData.append('is_private', 0)
-        
-        // Replace with your actual file upload API call
-        const response = await fetch('/api/method/upload_file', {
-          method: 'POST',
-          body: formData
-        })
-        
-        const result = await response.json()
-        if (result.message) {
-          this.profileData.avatar = result.message.file_url
-          this.showMessage('Profile picture updated!', 'success')
-        }
-        
-      } catch (error) {
-        console.error('Failed to upload image:', error)
-        this.showMessage('Failed to upload image', 'error')
-      } finally {
-        this.loading = false
-      }
-    },
-    
-    showMessage(text, type) {
-      this.message = text
-      this.messageType = type
-      setTimeout(() => {
-        this.message = ''
-      }, 5000)
-    }
+    form.value = { ...userData }
+    originalForm.value = { ...userData }
   }
+})
+
+// Update profile
+const updateProfile = createResource({
+  url: 'frappe.client.set_value',
+  makeParams() {
+    return {
+      doctype: 'User',
+      name: session.user,
+      fieldname: form.value
+    }
+  },
+  onSuccess() {
+    // Update original form data
+    originalForm.value = { ...form.value }
+
+    // Show success message
+    alert('Profile updated successfully!')
+
+    // Refresh user profile data
+    userProfile.fetch()
+  },
+  onError(error) {
+    alert('Failed to update profile: ' + error.message)
+  }
+})
+
+const hasChanges = computed(() => {
+  return Object.keys(form.value).some(
+    key => form.value[key] !== originalForm.value[key]
+  )
+})
+
+const getInitials = (name) => {
+  return (
+    name
+      ?.split(" ")
+      .map((word) => word.charAt(0))
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "U"
+  )
 }
+
+const resetForm = () => {
+  form.value = { ...originalForm.value }
+}
+
+const saveProfile = () => {
+  if (!hasChanges.value) return
+  updateProfile.submit()
+}
+
+// Load profile on mount
+onMounted(() => {
+  if (session.user) {
+    userProfile.fetch()
+  }
+})
+
+// Watch for session changes
+watch(() => session.user, (newUser) => {
+  if (newUser) {
+    userProfile.fetch()
+  }
+})
 </script>
 
 <style scoped>
 .update-profile {
   max-width: 800px;
   margin: 0 auto;
-  padding: 20px;
-}
-
-.page-header {
-  margin-bottom: 30px;
-  text-align: center;
-}
-
-.page-header h1 {
-  margin: 0 0 8px 0;
-  color: #2c3e50;
-  font-weight: 600;
-}
-
-.text-muted {
-  color: #6c757d;
-  margin: 0;
-}
-
-.profile-form-container {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-.profile-form {
-  padding: 30px;
-}
-
-.profile-picture-section {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 40px;
-}
-
-.profile-avatar {
-  position: relative;
-  width: 120px;
-  height: 120px;
-}
-
-.avatar-image {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 4px solid #e9ecef;
-}
-
-.avatar-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.profile-avatar:hover .avatar-overlay {
-  opacity: 1;
-}
-
-.file-input {
-  display: none;
-}
-
-.change-photo-btn {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 12px;
-  cursor: pointer;
-  text-align: center;
-}
-
-.change-photo-btn i {
-  display: block;
-  margin-bottom: 4px;
-  font-size: 20px;
-}
-
-.form-section {
-  margin-bottom: 30px;
-}
-
-.form-section h3 {
-  margin: 0 0 20px 0;
-  color: #495057;
-  font-size: 18px;
-  font-weight: 500;
-  border-bottom: 2px solid #e9ecef;
-  padding-bottom: 8px;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 500;
-  color: #495057;
-}
-
-.form-control {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  font-size: 14px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.form-control:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}
-
-.form-control:disabled {
-  background-color: #f8f9fa;
-  opacity: 0.6;
-}
-
-.checkbox-group {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  font-weight: normal;
-}
-
-.checkbox-label input[type="checkbox"] {
-  margin-right: 10px;
-  transform: scale(1.1);
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding-top: 20px;
-  border-top: 1px solid #e9ecef;
-}
-
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 120px;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background: #6c757d;
-  color: white;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background: #5a6268;
-}
-
-.btn-primary {
-  background: #007bff;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #0056b3;
-}
-
-.alert {
-  margin-top: 20px;
-  padding: 12px 16px;
-  border-radius: 4px;
-  font-weight: 500;
-}
-
-.alert-success {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.alert-error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-@media (max-width: 768px) {
-  .update-profile {
-    padding: 10px;
-  }
-  
-  .profile-form {
-    padding: 20px;
-  }
-  
-  .form-row {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-  
-  .form-actions {
-    flex-direction: column-reverse;
-  }
-  
-  .btn {
-    width: 100%;
-  }
+  padding: 1rem;
 }
 </style>

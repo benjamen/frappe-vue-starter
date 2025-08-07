@@ -1,18 +1,28 @@
-import { createApp } from "vue";
-import App from "./App.vue";
-import router from "./router";
-import { initSocket } from "./socket";
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { usePageConfigStore } from "@/stores/pageConfig";
-import { createPinia } from "pinia";
-import { session } from "./data/session"; // Import session to get CSRF token
-import { userResource, updateUserResource } from './data/user'
+// src/main.js
+import { createApp } from "vue"
+import { createPinia } from "pinia"
+import App from "./App.vue"
+import router from "./router"
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faTasks, faCogs, faChartPie, faHome, faFile, faList, faDatabase, faTachometerAlt, faUser, faChevronLeft, faChevronRight, faBars } from '@fortawesome/free-solid-svg-icons'
 
+library.add(
+  faTasks,
+  faCogs,
+  faChartPie,
+  faHome,
+  faFile,
+  faList,
+  faDatabase,
+  faTachometerAlt,
+  faUser,
+  faChevronLeft,
+  faChevronRight,
+  faBars
+)
 
-
-const pinia = createPinia();
-
-// Frappe UI imports
+// Frappe UI components
 import {
   Button,
   Card,
@@ -20,76 +30,66 @@ import {
   FormControl,
   Switch,
   TextInput,
-  frappeRequest,
-  pageMetaPlugin,
-  resourcesPlugin,
+  LoadingText,
   setConfig,
-  createDocumentResource,
-  createListResource,
-  LoadingText
-} from "frappe-ui";
+  frappeRequest,
+  resourcesPlugin,
+  pageMetaPlugin
+} from "frappe-ui"
 
-// Lucide icon
-import { X } from 'lucide-vue-next';
+// Icons
+import { X } from 'lucide-vue-next'
 
-import "./index.css";
+import "./index.css"
 
-// --- 1. CREATE APP, PINIA, REGISTER ---
-const app = createApp(App);
+const app = createApp(App)
+const pinia = createPinia()
 
-app.use(pinia);
+// --- Defensive JSON/content-type check for all frappeRequest calls ---
+const originalFrappeRequest = frappeRequest
 
-// Configure frappe-ui with CSRF token
-setConfig("resourceFetcher", (options) => {
-  // Add CSRF token to all requests
-  if (!options.headers) {
-    options.headers = {};
-  }
-  
-  // Add CSRF token if we have one
-  if (session.csrfToken) {
-    options.headers['X-Frappe-CSRF-Token'] = session.csrfToken;
-  }
-  
-  return frappeRequest(options);
-});
-
-// Fetch and wait for configs before mounting
-const pageConfig = usePageConfigStore();
-await pageConfig.fetchConfigs();  // <- IMPORTANT: Await before app.mount
-
-// Provide toast
-const toast = (options) => {
-  console.log(`[Toast] ${options.title}: ${options.text || ''}`);
-};
-app.provide('toast', toast);
-
-// Register components globally
-app.component('Button', Button);
-app.component('Card', Card);
-app.component('Dialog', Dialog);
-app.component('FormControl', FormControl);
-app.component('Switch', Switch);
-app.component('TextInput', TextInput);
-app.component('LucideX', X);
-app.component('LoadingText', LoadingText);
-
-app.component('fa-icon', FontAwesomeIcon);
-
-app.use(resourcesPlugin, {
-  resources: {
-    getUser: userResource,
-    updateUser: updateUserResource
-  }
-});
-app.use(router);
-app.use(pageMetaPlugin);
+function safeFrappeRequest(...args) {
+  return originalFrappeRequest(...args).then(response => {
+    // If we get a Response object (before JSON parsing)
+    if (response && typeof response === 'object' && typeof response.headers?.get === 'function') {
+      const type = response.headers.get('content-type')
+      if (!type || !type.includes('application/json')) {
+        window.location.href = '/login'
+        throw new Error('API response is not JSON. Redirecting to login.')
+      }
+      return response.json()
+    }
+    // If already JSON (Frappe UI already parsed it)
+    return response
+  })
+}
 
 
+setConfig('resourceFetcher', safeFrappeRequest)
+// -------------------------------------------------------------------
 
-// --- 2. INIT SOCKET ---
-const socket = initSocket();
-app.config.globalProperties.$socket = socket;
+// Global components
+const components = {
+  Button,
+  Card,
+  Dialog,
+  FormControl,
+  Switch,
+  TextInput,
+  LoadingText,
+  'fa-icon': FontAwesomeIcon,
+  'LucideX': X
+}
 
-// --- 4. NOW MOUNT ---
-app.mount("#app");
+Object.entries(components).forEach(([name, component]) => {
+  app.component(name, component)
+})
+
+// Plugins
+app.use(pinia)
+app.use(router)
+app.use(resourcesPlugin)
+app.use(pageMetaPlugin)
+
+// Mount app
+app.mount('#app')
