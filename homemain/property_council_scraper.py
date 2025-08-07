@@ -64,14 +64,24 @@ async def scrape_hcc_property(address_query):
                 print("[ERROR] Property details table did not load.")
                 return {}, property_id
 
+            # Only grab the key fields, break as soon as all are found
             details = {}
-            rows = await page.locator(".table-responsive tr").all()
-            for row in rows:
+            wanted_labels = {"Property ID", "Legal Description", "Address"}
+            found = set()
+            table_rows = await page.locator(".table-responsive tr").all()
+            for row in table_rows:
                 try:
                     label = (await row.locator("th").text_content()).strip()
                     value = (await row.locator("td").text_content()).strip()
-                    details[label] = value
-                except Exception:
+                    if label in wanted_labels:
+                        details[label] = value
+                        found.add(label)
+                        print(f"[INFO] Scraped: {label} = {value}")
+                    if found == wanted_labels:
+                        print("[INFO] Got all needed fields, breaking early.")
+                        break
+                except Exception as ex:
+                    print(f"[DEBUG] Row error: {ex}")
                     continue
 
             print(f"[INFO] Scraped property details: {details}")
@@ -116,7 +126,6 @@ def scrape_and_update_home(docname):
         home.db_set("council_property_id", web.get("Property ID"))
         home.db_set("council_address", web.get("Address"))
         home.db_set("council_legal_description", web.get("Legal Description"))
-        # Add more mappings as you wish!
 
         home.db_set("scraper_status", "Success")
         home.db_set("scraper_message", "Scraped successfully!")
