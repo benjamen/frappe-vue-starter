@@ -1,0 +1,80 @@
+{
+  "doctype": "DocType",
+  "name": "Component",
+  "module": "Homemain",
+  "custom": 0,
+  "istable": 0,
+  "track_changes": 1,
+  "engine": "InnoDB",
+  "search_fields": "parent_type,category,material,location_ref",
+  "field_order": [
+    "parent_type",
+    "parent_ref",
+    "category",
+    "material",
+    "location_ref",
+    "qty",
+    "unit"
+  ],
+  "fields": [
+    {
+      "label": "Parent Type",
+      "fieldname": "parent_type",
+      "fieldtype": "Select",
+      "options": "Structure\nSystem",
+      "in_list_view": 1,
+      "reqd": 1
+    },
+    {
+      "label": "Parent Ref",
+      "fieldname": "parent_ref",
+      "fieldtype": "Dynamic Link",
+      "options": "parent_type",
+      "reqd": 1
+    },
+    {
+      "label": "Category",
+      "fieldname": "category",
+      "fieldtype": "Select",
+      "options": "Roof Cover\nRoof Flashings\nGutters/Downpipes\nCladding\nWindows/Glazing\nExterior Doors\nDecking\nBalustrade\nFoundation\nDriveway/Paths\nInterior Walls\nCeilings\nFlooring\nCabinets\nBenchtops\nFittings\nAppliances\nSwitchboard\nGPOs\nLights\nPlumbing Fixtures\nHWC/Cylinder\nHeat Pump\nVentilation\nInsulation\nSmoke Alarms",
+      "in_list_view": 1,
+      "reqd": 1
+    },
+    {
+      "label": "Material",
+      "fieldname": "material",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Location Ref",
+      "fieldname": "location_ref",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Quantity",
+      "fieldname": "qty",
+      "fieldtype": "Float"
+    },
+    {
+      "label": "Unit",
+      "fieldname": "unit",
+      "fieldtype": "Data"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "export": 1,
+      "print": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "actions": [],
+  "links": [],
+  "states": []
+}

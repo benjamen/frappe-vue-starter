@@ -1,0 +1,112 @@
+{
+  "doctype": "DocType",
+  "name": "Property",
+  "module": "Homemain",
+  "custom": 0,
+  "istable": 0,
+  "allow_rename": 1,
+  "track_changes": 1,
+  "engine": "InnoDB",
+  "autoname": "field:title",
+  "title_field": "title",
+  "search_fields": "title,address,council",
+  "index_web_pages_for_search": 1,
+  "field_order": [
+    "title",
+    "address",
+    "geo_lat",
+    "geo_lng",
+    "year_built",
+    "dwelling_type",
+    "bedrooms",
+    "bathrooms",
+    "floor_area_m2",
+    "land_area_m2",
+    "council",
+    "valuation_refs"
+  ],
+  "fields": [
+    {
+      "label": "Title",
+      "fieldname": "title",
+      "fieldtype": "Data",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "label": "Address",
+      "fieldname": "address",
+      "fieldtype": "Small Text"
+    },
+    {
+      "label": "Latitude",
+      "fieldname": "geo_lat",
+      "fieldtype": "Float"
+    },
+    {
+      "label": "Longitude",
+      "fieldname": "geo_lng",
+      "fieldtype": "Float"
+    },
+    {
+      "label": "Year Built",
+      "fieldname": "year_built",
+      "fieldtype": "Int"
+    },
+    {
+      "label": "Dwelling Type",
+      "fieldname": "dwelling_type",
+      "fieldtype": "Select",
+      "options": "House\nTownhouse\nApartment"
+    },
+    {
+      "label": "Bedrooms",
+      "fieldname": "bedrooms",
+      "fieldtype": "Int"
+    },
+    {
+      "label": "Bathrooms",
+      "fieldname": "bathrooms",
+      "fieldtype": "Float"
+    },
+    {
+      "label": "Floor Area (m²)",
+      "fieldname": "floor_area_m2",
+      "fieldtype": "Float"
+    },
+    {
+      "label": "Land Area (m²)",
+      "fieldname": "land_area_m2",
+      "fieldtype": "Float"
+    },
+    {
+      "label": "Council",
+      "fieldname": "council",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Valuation References",
+      "fieldname": "valuation_refs",
+      "fieldtype": "Small Text"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "report": 1,
+      "share": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "actions": [],
+  "links": [],
+  "states": []
+}

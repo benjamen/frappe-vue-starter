@@ -22,3 +22,7 @@ class Home(Document):
             "homemain.property_council_scraper.scrape_and_update_home",
             docname=self.name
         )
+        frappe.enqueue(
+            "homemain.property_homes_scraper.scrape_and_update_home_estimates",
+            docname=self.name
+        )

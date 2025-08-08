@@ -1,0 +1,44 @@
+{
+  "doctype": "DocType",
+  "name": "Defect Code",
+  "module": "Homemain",
+  "custom": 0,
+  "istable": 0,
+  "track_changes": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "code",
+    "description"
+  ],
+  "fields": [
+    {
+      "label": "Code",
+      "fieldname": "code",
+      "fieldtype": "Data",
+      "reqd": 1,
+      "unique": 1,
+      "in_list_view": 1
+    },
+    {
+      "label": "Description",
+      "fieldname": "description",
+      "fieldtype": "Small Text"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "export": 1,
+      "print": 1
+    }
+  ],
+  "sort_field": "code",
+  "sort_order": "ASC",
+  "actions": [],
+  "links": [],
+  "states": []
+}

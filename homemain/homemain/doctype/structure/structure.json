@@ -1,0 +1,66 @@
+{
+  "doctype": "DocType",
+  "name": "Structure",
+  "module": "Homemain",
+  "custom": 0,
+  "istable": 0,
+  "track_changes": 1,
+  "engine": "InnoDB",
+  "search_fields": "property,type",
+  "field_order": [
+    "property",
+    "type",
+    "level_count",
+    "construction_year",
+    "floor_area_m2"
+  ],
+  "fields": [
+    {
+      "label": "Property",
+      "fieldname": "property",
+      "fieldtype": "Link",
+      "options": "Property",
+      "in_list_view": 1,
+      "reqd": 1
+    },
+    {
+      "label": "Type",
+      "fieldname": "type",
+      "fieldtype": "Select",
+      "options": "Main Dwelling\nGarage\nShed\nDeck",
+      "in_list_view": 1,
+      "reqd": 1
+    },
+    {
+      "label": "Levels",
+      "fieldname": "level_count",
+      "fieldtype": "Int"
+    },
+    {
+      "label": "Construction Year",
+      "fieldname": "construction_year",
+      "fieldtype": "Int"
+    },
+    {
+      "label": "Floor Area (m²)",
+      "fieldname": "floor_area_m2",
+      "fieldtype": "Float"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "export": 1,
+      "print": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "actions": [],
+  "links": [],
+  "states": []
+}

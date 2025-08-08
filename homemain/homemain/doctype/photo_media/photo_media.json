@@ -1,0 +1,85 @@
+{
+  "doctype": "DocType",
+  "name": "Photo Media",
+  "module": "Homemain",
+  "autoname": "hash",
+  "custom": 0,
+  "istable": 0,
+  "track_changes": 1,
+  "field_order": [
+    "session",
+    "entity_type",
+    "entity_ref",
+    "type",
+    "file",
+    "source",
+    "tags",
+    "annotated"
+  ],
+  "fields": [
+    {
+      "label": "Session",
+      "fieldname": "session",
+      "fieldtype": "Link",
+      "options": "Survey Session",
+      "in_list_view": 1,
+      "reqd": 1
+    },
+    {
+      "label": "Entity Type",
+      "fieldname": "entity_type",
+      "fieldtype": "Select",
+      "options": "Property\nComponent\nRoom\nSystem",
+      "in_list_view": 1,
+      "reqd": 1
+    },
+    {
+      "label": "Entity Ref",
+      "fieldname": "entity_ref",
+      "fieldtype": "Dynamic Link",
+      "options": "entity_type",
+      "reqd": 1
+    },
+    {
+      "label": "Type",
+      "fieldname": "type",
+      "fieldtype": "Select",
+      "options": "Photo\nVideo"
+    },
+    {
+      "label": "File",
+      "fieldname": "file",
+      "fieldtype": "Attach"
+    },
+    {
+      "label": "Source",
+      "fieldname": "source",
+      "fieldtype": "Select",
+      "options": "Agent\nManual\nScrape"
+    },
+    {
+      "label": "Tags",
+      "fieldname": "tags",
+      "fieldtype": "Table",
+      "options": "Media Tag"
+    },
+    {
+      "label": "Annotated",
+      "fieldname": "annotated",
+      "fieldtype": "Check"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "export": 1,
+      "print": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC"
+}

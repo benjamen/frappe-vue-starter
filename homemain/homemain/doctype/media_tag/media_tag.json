@@ -1,0 +1,46 @@
+{
+  "doctype": "DocType",
+  "name": "Media Tag",
+  "module": "Homemain",
+  "custom": 0,
+  "istable": 1,
+  "track_changes": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "label",
+    "x",
+    "y"
+  ],
+  "fields": [
+    {
+      "label": "Label",
+      "fieldname": "label",
+      "fieldtype": "Data",
+      "in_list_view": 1
+    },
+    {
+      "label": "X",
+      "fieldname": "x",
+      "fieldtype": "Float"
+    },
+    {
+      "label": "Y",
+      "fieldname": "y",
+      "fieldtype": "Float"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "actions": [],
+  "links": [],
+  "states": []
+}

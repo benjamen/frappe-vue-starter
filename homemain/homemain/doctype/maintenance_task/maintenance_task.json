@@ -1,0 +1,75 @@
+{
+  "doctype": "DocType",
+  "name": "Maintenance Task",
+  "module": "Homemain",
+  "autoname": "hash",
+  "custom": 0,
+  "istable": 0,
+  "track_changes": 1,
+  "field_order": [
+    "property",
+    "finding",
+    "task_type",
+    "priority",
+    "recurrence_cron",
+    "estimated_cost",
+    "scheduled_for"
+  ],
+  "fields": [
+    {
+      "label": "Property",
+      "fieldname": "property",
+      "fieldtype": "Link",
+      "options": "Property",
+      "in_list_view": 1,
+      "reqd": 1
+    },
+    {
+      "label": "Finding",
+      "fieldname": "finding",
+      "fieldtype": "Link",
+      "options": "Survey Finding"
+    },
+    {
+      "label": "Task Type",
+      "fieldname": "task_type",
+      "fieldtype": "Select",
+      "options": "Clean\nRepair\nReplace\nService",
+      "in_list_view": 1
+    },
+    {
+      "label": "Priority",
+      "fieldname": "priority",
+      "fieldtype": "Select",
+      "options": "Now\nNext 12m\nLater"
+    },
+    {
+      "label": "Recurrence (cron)",
+      "fieldname": "recurrence_cron",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Estimated Cost",
+      "fieldname": "estimated_cost",
+      "fieldtype": "Currency"
+    },
+    {
+      "label": "Scheduled For",
+      "fieldname": "scheduled_for",
+      "fieldtype": "Date"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "export": 1,
+      "print": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC"
+}

@@ -1,0 +1,81 @@
+{
+  "doctype": "DocType",
+  "name": "Survey Session",
+  "module": "Homemain",
+  "autoname": "hash",
+  "custom": 0,
+  "istable": 0,
+  "track_changes": 1,
+  "field_order": [
+    "property",
+    "template",
+    "mode",
+    "status",
+    "confidence_summary",
+    "started_by",
+    "started_at"
+  ],
+  "fields": [
+    {
+      "label": "Property",
+      "fieldname": "property",
+      "fieldtype": "Link",
+      "options": "Property",
+      "in_list_view": 1,
+      "reqd": 1
+    },
+    {
+      "label": "Template",
+      "fieldname": "template",
+      "fieldtype": "Link",
+      "options": "Survey Template",
+      "in_list_view": 1,
+      "reqd": 1
+    },
+    {
+      "label": "Mode",
+      "fieldname": "mode",
+      "fieldtype": "Select",
+      "options": "Import\nGuided",
+      "in_list_view": 1,
+      "reqd": 1
+    },
+    {
+      "label": "Status",
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "options": "Draft\nIn Review\nFinal",
+      "in_list_view": 1,
+      "reqd": 1
+    },
+    {
+      "label": "Confidence %",
+      "fieldname": "confidence_summary",
+      "fieldtype": "Percent"
+    },
+    {
+      "label": "Started By",
+      "fieldname": "started_by",
+      "fieldtype": "Link",
+      "options": "User"
+    },
+    {
+      "label": "Started At",
+      "fieldname": "started_at",
+      "fieldtype": "Datetime"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "export": 1,
+      "print": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC"
+}

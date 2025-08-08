@@ -1,0 +1,72 @@
+{
+  "doctype": "DocType",
+  "name": "System",
+  "module": "Homemain",
+  "custom": 0,
+  "istable": 0,
+  "track_changes": 1,
+  "engine": "InnoDB",
+  "search_fields": "property,category,make_model",
+  "field_order": [
+    "property",
+    "category",
+    "make_model",
+    "install_date",
+    "last_service_date",
+    "expected_life_years"
+  ],
+  "fields": [
+    {
+      "label": "Property",
+      "fieldname": "property",
+      "fieldtype": "Link",
+      "options": "Property",
+      "in_list_view": 1,
+      "reqd": 1
+    },
+    {
+      "label": "Category",
+      "fieldname": "category",
+      "fieldtype": "Select",
+      "options": "Electrical\nPlumbing\nHVAC\nHot Water\nDrainage\nRoofing\nSecurity\nInternet",
+      "in_list_view": 1,
+      "reqd": 1
+    },
+    {
+      "label": "Make/Model",
+      "fieldname": "make_model",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Install Date",
+      "fieldname": "install_date",
+      "fieldtype": "Date"
+    },
+    {
+      "label": "Last Service Date",
+      "fieldname": "last_service_date",
+      "fieldtype": "Date"
+    },
+    {
+      "label": "Expected Life (Years)",
+      "fieldname": "expected_life_years",
+      "fieldtype": "Int"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "export": 1,
+      "print": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "actions": [],
+  "links": [],
+  "states": []
+}

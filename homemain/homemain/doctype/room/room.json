@@ -1,0 +1,60 @@
+{
+  "doctype": "DocType",
+  "name": "Room",
+  "module": "Homemain",
+  "custom": 0,
+  "istable": 0,
+  "track_changes": 1,
+  "engine": "InnoDB",
+  "search_fields": "structure,type",
+  "field_order": [
+    "structure",
+    "type",
+    "level",
+    "floor_area_m2"
+  ],
+  "fields": [
+    {
+      "label": "Structure",
+      "fieldname": "structure",
+      "fieldtype": "Link",
+      "options": "Structure",
+      "in_list_view": 1,
+      "reqd": 1
+    },
+    {
+      "label": "Room Type",
+      "fieldname": "type",
+      "fieldtype": "Select",
+      "options": "Entry\nLiving\nDining\nKitchen\nBedroom\nBathroom\nEnsuite\nWC\nLaundry\nHall\nGarage",
+      "in_list_view": 1,
+      "reqd": 1
+    },
+    {
+      "label": "Level",
+      "fieldname": "level",
+      "fieldtype": "Int"
+    },
+    {
+      "label": "Floor Area (m²)",
+      "fieldname": "floor_area_m2",
+      "fieldtype": "Float"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "export": 1,
+      "print": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "actions": [],
+  "links": [],
+  "states": []
+}

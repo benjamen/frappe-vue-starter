@@ -1,0 +1,41 @@
+{
+  "doctype": "DocType",
+  "name": "Survey Template",
+  "module": "Homemain",
+  "autoname": "hash",
+  "custom": 0,
+  "istable": 0,
+  "track_changes": 1,
+  "field_order": [
+    "scope",
+    "checklist_json"
+  ],
+  "fields": [
+    {
+      "label": "Scope",
+      "fieldname": "scope",
+      "fieldtype": "Select",
+      "options": "Exterior\nInterior\nSystems\nSafety",
+      "in_list_view": 1,
+      "reqd": 1
+    },
+    {
+      "label": "Checklist JSON",
+      "fieldname": "checklist_json",
+      "fieldtype": "Code"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "export": 1,
+      "print": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC"
+}
