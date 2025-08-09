@@ -65,7 +65,7 @@
     {
       "group": "Structure Records",
       "link_doctype": "Component",
-      "link_fieldname": "property"
+      "link_fieldname": "parent_ref"
     }
   ],
   "states": []
