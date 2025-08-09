@@ -63,8 +63,8 @@
   "actions": [],
   "links": [
     {
-      "group": "Property Records",
-      "link_doctype": "Structure",
+      "group": "Structure Records",
+      "link_doctype": "Component",
       "link_fieldname": "property"
     }
   ],
