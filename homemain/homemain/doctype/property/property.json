@@ -9,21 +9,65 @@
   "engine": "InnoDB",
   "autoname": "field:title",
   "title_field": "title",
-  "search_fields": "title,address,council",
+  "search_fields": "title,address,council,council_address,legal_description",
   "index_web_pages_for_search": 1,
   "field_order": [
     "title",
     "address",
+    "council_address",
     "geo_lat",
     "geo_lng",
     "year_built",
+    "decade_built",
     "dwelling_type",
     "bedrooms",
     "bathrooms",
+    "car_spaces",
     "floor_area_m2",
     "land_area_m2",
+    "property_area_sqm",
     "council",
-    "valuation_refs"
+    "valuation_refs",
+    "section_break_1",
+    "council_property_id",
+    "council_legal_description",
+    "valuation_number",
+    "record_of_title",
+    "certificate_of_title",
+    "legal_description",
+    "category",
+    "zone",
+    "land_use",
+    "section_break_2",
+    "property_contour",
+    "deck",
+    "view_living_area",
+    "view_type",
+    "condition",
+    "construction",
+    "section_break_3",
+    "capital_value",
+    "land_value",
+    "city_council_rates",
+    "regional_council_rates",
+    "total_rates",
+    "section_break_4",
+    "homes_estimate",
+    "homes_estimate_date",
+    "homes_estimate_value",
+    "homes_estimate_range_min",
+    "homes_estimate_range_max",
+    "homes_estimate_suburb",
+    "homes_estimate_suburb_value",
+    "homes_council_value",
+    "homes_last_sale_price",
+    "description",
+    "section_break_5",
+    "scraper_status",
+    "scraper_message",
+    "scrape_applied_at",
+    "scrape_applied_key",
+    "address_fp"
   ],
   "fields": [
     {
@@ -39,19 +83,31 @@
       "fieldtype": "Small Text"
     },
     {
+      "label": "Council Address",
+      "fieldname": "council_address",
+      "fieldtype": "Data"
+    },
+    {
       "label": "Latitude",
       "fieldname": "geo_lat",
-      "fieldtype": "Float"
+      "fieldtype": "Float",
+      "precision": "6"
     },
     {
       "label": "Longitude",
       "fieldname": "geo_lng",
-      "fieldtype": "Float"
+      "fieldtype": "Float",
+      "precision": "6"
     },
     {
       "label": "Year Built",
       "fieldname": "year_built",
       "fieldtype": "Int"
+    },
+    {
+      "label": "Decade Built",
+      "fieldname": "decade_built",
+      "fieldtype": "Data"
     },
     {
       "label": "Dwelling Type",
@@ -70,6 +126,11 @@
       "fieldtype": "Float"
     },
     {
+      "label": "Car Spaces",
+      "fieldname": "car_spaces",
+      "fieldtype": "Int"
+    },
+    {
       "label": "Floor Area (m²)",
       "fieldname": "floor_area_m2",
       "fieldtype": "Float"
@@ -80,6 +141,12 @@
       "fieldtype": "Float"
     },
     {
+      "label": "Property Area (sqm)",
+      "fieldname": "property_area_sqm",
+      "fieldtype": "Float",
+      "precision": "2"
+    },
+    {
       "label": "Council",
       "fieldname": "council",
       "fieldtype": "Data"
@@ -87,6 +154,193 @@
     {
       "label": "Valuation References",
       "fieldname": "valuation_refs",
+      "fieldtype": "Small Text"
+    },
+    {
+      "fieldtype": "Section Break",
+      "fieldname": "section_break_1",
+      "label": "Legal & Council Information"
+    },
+    {
+      "label": "Council Property ID",
+      "fieldname": "council_property_id",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Council Legal Description",
+      "fieldname": "council_legal_description",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Valuation Number",
+      "fieldname": "valuation_number",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Record of Title",
+      "fieldname": "record_of_title",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Certificate of Title",
+      "fieldname": "certificate_of_title",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Legal Description",
+      "fieldname": "legal_description",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Category",
+      "fieldname": "category",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Zone",
+      "fieldname": "zone",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Land Use",
+      "fieldname": "land_use",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldtype": "Section Break",
+      "fieldname": "section_break_2",
+      "label": "Property Features"
+    },
+    {
+      "label": "Property Contour",
+      "fieldname": "property_contour",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Deck",
+      "fieldname": "deck",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "View: Living Area",
+      "fieldname": "view_living_area",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "View Type",
+      "fieldname": "view_type",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Condition",
+      "fieldname": "condition",
+      "fieldtype": "Text"
+    },
+    {
+      "label": "Construction",
+      "fieldname": "construction",
+      "fieldtype": "Text"
+    },
+    {
+      "fieldtype": "Section Break",
+      "fieldname": "section_break_3",
+      "label": "Valuation & Rates"
+    },
+    {
+      "label": "Capital Value",
+      "fieldname": "capital_value",
+      "fieldtype": "Currency"
+    },
+    {
+      "label": "Land Value",
+      "fieldname": "land_value",
+      "fieldtype": "Currency"
+    },
+    {
+      "label": "City Council Rates",
+      "fieldname": "city_council_rates",
+      "fieldtype": "Currency"
+    },
+    {
+      "label": "Regional Council Rates",
+      "fieldname": "regional_council_rates",
+      "fieldtype": "Currency"
+    },
+    {
+      "label": "Total Rates",
+      "fieldname": "total_rates",
+      "fieldtype": "Currency"
+    },
+    {
+      "fieldtype": "Section Break",
+      "fieldname": "section_break_4",
+      "label": "Market Estimates"
+    },
+    {
+      "label": "Homes Estimate",
+      "fieldname": "homes_estimate",
+      "fieldtype": "Currency"
+    },
+    {
+      "label": "Homes Estimate Date",
+      "fieldname": "homes_estimate_date",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Homes Estimate Value",
+      "fieldname": "homes_estimate_value",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Homes Estimate Range Min",
+      "fieldname": "homes_estimate_range_min",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Homes Estimate Range Max",
+      "fieldname": "homes_estimate_range_max",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Homes Estimate Suburb",
+      "fieldname": "homes_estimate_suburb",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Homes Estimate Suburb Value",
+      "fieldname": "homes_estimate_suburb_value",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Homes Council Value",
+      "fieldname": "homes_council_value",
+      "fieldtype": "Currency"
+    },
+    {
+      "label": "Homes Last Sale Price",
+      "fieldname": "homes_last_sale_price",
+      "fieldtype": "Currency"
+    },
+    {
+      "label": "Description",
+      "fieldname": "description",
+      "fieldtype": "Text"
+    },
+    {
+      "label": "Address Fingerprint",
+      "fieldname": "address_fp",
+      "fieldtype": "Data",
+      "hidden": 1,
+      "read_only": 1
+    },
+    {
+      "label": "Scraper Status",
+      "fieldname": "scraper_status",
+      "fieldtype": "Data"
+    },
+    {
+      "label": "Scraper Message",
+      "fieldname": "scraper_message",
       "fieldtype": "Small Text"
     }
   ],
@@ -107,6 +361,27 @@
   "sort_field": "modified",
   "sort_order": "DESC",
   "actions": [],
-  "links": [],
+  "links": [
+    {
+      "group": "Property Records",
+      "link_doctype": "Sale Record",
+      "link_fieldname": "property"
+    },
+    {
+      "group": "Property Records",
+      "link_doctype": "Valuation Record",
+      "link_fieldname": "property"
+    },
+    {
+      "group": "Property Records",
+      "link_doctype": "Rate Record",
+      "link_fieldname": "property"
+    },
+    {
+      "group": "Property Records",
+      "link_doctype": "Property Estimate",
+      "link_fieldname": "property"
+    }
+  ],
   "states": []
 }

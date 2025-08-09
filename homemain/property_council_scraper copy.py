@@ -107,34 +107,34 @@ def get_property_info_sync(address_query):
         return all_data
     return asyncio.run(_main())
 
-def scrape_and_update_property(docname):
-    property_doc = frappe.get_doc("Property", docname)
+def scrape_and_update_home(docname):
+    home = frappe.get_doc("Home", docname)
     try:
-        property_doc.db_set("scraper_status", "In Progress")
-        property_doc.db_set("scraper_message", "Scraping in progress...")
+        home.db_set("scraper_status", "In Progress")
+        home.db_set("scraper_message", "Scraping in progress...")
 
-        address = (property_doc.address or "")
+        address = (home.address or "")
         print(f"[INFO] [Council Scraper] Scraping for cleaned address: '{address}'")
 
         scraped = get_property_info_sync(address)
         if not scraped or not scraped.get("property_web_details"):
-            property_doc.db_set("scraper_status", "Failed")
-            property_doc.db_set("scraper_message", "No results found or scrape failed.")
+            home.db_set("scraper_status", "Failed")
+            home.db_set("scraper_message", "No results found or scrape failed.")
             return
 
         web = scraped.get("property_web_details")
-        property_doc.db_set("council_property_id", web.get("Property ID"))
-        property_doc.db_set("council_address", web.get("Address"))
-        property_doc.db_set("council_legal_description", web.get("Legal Description"))
+        home.db_set("council_property_id", web.get("Property ID"))
+        home.db_set("council_address", web.get("Address"))
+        home.db_set("council_legal_description", web.get("Legal Description"))
 
-        property_doc.db_set("scraper_status", "Success")
-        property_doc.db_set("scraper_message", "Scraped successfully!")
+        home.db_set("scraper_status", "Success")
+        home.db_set("scraper_message", "Scraped successfully!")
     except Exception as e:
-        property_doc.db_set("scraper_status", "Failed")
-        property_doc.db_set("scraper_message", f"Scraper failed: {e}")
-        frappe.log_error(f"Property scraper error for {docname}: {e}", "homemain.property_council_scraper")
+        home.db_set("scraper_status", "Failed")
+        home.db_set("scraper_message", f"Scraper failed: {e}")
+        frappe.log_error(f"Home scraper error for {docname}: {e}", "homemain.property_council_scraper")
         print(f"[ERROR] Scraper failed for {docname}: {e}")
     finally:
-        print(f"[INFO] Property {docname} updated with scraper status.")
+        print(f"[INFO] Home {docname} updated with scraper status.")
         frappe.db.commit()
         print("[INFO] Scraping complete, changes committed to database.")

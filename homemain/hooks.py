@@ -252,3 +252,10 @@ whitelisted_methods = [
     "frappe.auth.login",
     "frappe.auth.logout"
 ]
+
+doc_events = {
+    "Property": {
+        "on_update": "homemain.property_address_events.on_update_property"
+    }
+}
+

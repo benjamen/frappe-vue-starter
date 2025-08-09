@@ -1,5 +1,3 @@
-# homemain/property_homes_scraper.py
-
 import asyncio
 from playwright.async_api import async_playwright, TimeoutError
 import frappe
@@ -166,32 +164,32 @@ async def _async_scrape_homes(address):
 
         return council_data
 
-def scrape_and_update_property_estimates(docname):
-    property_doc = frappe.get_doc("Property", docname)
+def scrape_and_update_home_estimates(docname):
+    home = frappe.get_doc("Home", docname)
     try:
-        property_doc.db_set("scraper_status", "HomesScraper In Progress")
-        property_doc.db_set("scraper_message", "Scraping homes.co.nz in progress...")
-        address = property_doc.address or ""
+        home.db_set("scraper_status", "HomesScraper In Progress")
+        home.db_set("scraper_message", "Scraping homes.co.nz in progress...")
+        address = home.address or ""
         print(f"[INFO] [HomesScraper] Scraping for address: '{address}'")
         scraped = asyncio.run(_async_scrape_homes(address))
         if not scraped:
-            property_doc.db_set("scraper_status", "Failed")
-            property_doc.db_set("scraper_message", "No results found or scrape failed.")
+            home.db_set("scraper_status", "Failed")
+            home.db_set("scraper_message", "No results found or scrape failed.")
             return
         for k, v in scraped.items():
             # Only set fields that exist in DocType, and that you scraped
-            if hasattr(property_doc, k):
-                property_doc.db_set(k, v)
-        property_doc.db_set("scraper_status", "Success")
-        property_doc.db_set("scraper_message", "Homes.co.nz scrape success.")
+            if hasattr(home, k):
+                home.db_set(k, v)
+        home.db_set("scraper_status", "Success")
+        home.db_set("scraper_message", "Homes.co.nz scrape success.")
     except Exception as e:
-        property_doc.db_set("scraper_status", "Failed")
-        property_doc.db_set("scraper_message", f"Homes.co.nz scraper failed: {e}")
-        frappe.log_error(f"Property homes.co.nz scraper error for {docname}: {e}", "homemain.property_homes_scraper")
+        home.db_set("scraper_status", "Failed")
+        home.db_set("scraper_message", f"Homes.co.nz scraper failed: {e}")
+        frappe.log_error(f"Home homes.co.nz scraper error for {docname}: {e}", "homemain.property_homes_scraper")
         print(f"[ERROR] Homes.co.nz scraper failed for {docname}: {e}")
     finally:
         frappe.db.commit()
-        print(f"[INFO] Property {docname} updated (homes.co.nz).")
+        print(f"[INFO] Home {docname} updated (homes.co.nz).")
 
 # Optional: for local/standalone run
 if __name__ == "__main__":
