@@ -61,6 +61,12 @@
   "sort_field": "modified",
   "sort_order": "DESC",
   "actions": [],
-  "links": [],
+  "links": [
+    {
+      "group": "Property Records",
+      "link_doctype": "Structure",
+      "link_fieldname": "property"
+    }
+  ],
   "states": []
 }

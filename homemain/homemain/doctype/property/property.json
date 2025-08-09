@@ -381,6 +381,11 @@
       "group": "Property Records",
       "link_doctype": "Property Estimate",
       "link_fieldname": "property"
+    },
+    {
+      "group": "Property Records",
+      "link_doctype": "Structure",
+      "link_fieldname": "property"
     }
   ],
   "states": []
